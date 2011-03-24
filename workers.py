@@ -8,7 +8,7 @@ class Worker(db.Model):
  surname = db.StringProperty(multiline=False)
  name = db.StringProperty(multiline=False)
  email = db.StringProperty(multiline=False)
- phoneNamb=db.StringProperty(multiline=False)
+ phone=db.StringProperty(multiline=False)
 
 class WorkersPage(webapp.RequestHandler):
  def get(self):
@@ -36,10 +36,29 @@ class WorkersPage(webapp.RequestHandler):
 		self.response.out.write('<td>')
 		self.response.out.write("<a href=\"mailto:%s\">%s</a></br>" % (wk.email,wk.email))
 		self.response.out.write('</td>')
-
+		
+		self.response.out.write('<td>')
+		self.response.out.write("%s</br>" % wk.phone)
+		self.response.out.write('</td>')
+		
+		self.response.out.write('<td>')
+		self.response.out.write("%s</br>" % wk.key().id())
+		self.response.out.write('</td>')
 				
 		self.response.out.write('</tr>')
-	self.response.out.write('</table>')
+	
+	self.response.out.write('</table></br>')
+	
+	self.response.out.write(u"""
+			<form method="post" action="/workers/add">
+				<div>Добавить сотрудника</div>
+				Фамилия: <input name="surname"></br>
+				Имя: <input name="name"></br>
+				E-mail: <input name="email"></br>
+				Телефон: <input name="phone"></br>
+				<input type="submit" value="Добавить">	
+			</form>""")
+
 	self.response.out.write("""</body></html> """)
  def init(self):
  	wk=Worker()
