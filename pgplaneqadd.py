@@ -19,14 +19,14 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	
 	wks=db.GqlQuery('SELECT * FROM Worker')
 	for wk in wks:
-		self.response.out.write("<input type=\"checkbox\" name=\"worker\" value=\"%s\">%s</br>"%(wk.surname,wk.surname))
+		self.response.out.write("<input type=\"checkbox\" name=\"worker\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 	
 	self.response.out.write(u"""
 		Количество:<input name="quant"></br>
 		Коментарий:<input name="comment"></br>
 		<input value="ok" type="button" onclick="javascript:(function(){
 		sl=document.getElementsByName('eqid');
-		str='http://localhost:8080/planeq/laneqadd?eqid=';
+		str='http://localhost:8080/planeq/planeqadd?eqid=';
 		str=str+sl[0].value;		
 	
 		inp=document.getElementsByName('quant');
