@@ -18,7 +18,7 @@ class EqPage(webapp.RequestHandler):
 			eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
-			self.response.out.write("%s</br>" % eq.name)
+			self.response.out.write("%s %s</br>" % (eq.name,eq.key()))
 				
 		self.response.out.write("""</body></html>""")		
 	def init(self):

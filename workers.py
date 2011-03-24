@@ -16,12 +16,16 @@ class WorkersPage(webapp.RequestHandler):
 														
 														<body>""")
 	wks=db.GqlQuery('SELECT * FROM Worker')
+	#db.delete(wks)
 	if wks.count()==0:
 		self.init()
 		wks=db.GqlQuery('SELECT * FROM Worker')
 	self.response.out.write(u'Список сотрудников лаборатории</br>')
-	self.response.out.write('<table>')
-		
+	self.response.out.write('<table border="1">')
+	self.response.out.write(u"""
+														<tr><th>Фамилия</th> <th>Имя</th> <th>E-mail</th> <th>Телефон</th> </tr>
+														""")
+
 	for wk in wks:
 		self.response.out.write('<tr>')
 		
@@ -34,20 +38,18 @@ class WorkersPage(webapp.RequestHandler):
 		self.response.out.write('</td>')
 		
 		self.response.out.write('<td>')
-		self.response.out.write("<a href=\"mailto:%s\">%s</a></br>" % (wk.email,wk.email))
+		self.response.out.write("<a href=\"mailto:%s\">%s</a>" % (wk.email,wk.email))
 		self.response.out.write('</td>')
 		
-		self.response.out.write('<td>')
-		self.response.out.write("%s</br>" % wk.phone)
-		self.response.out.write('</td>')
 		
-		self.response.out.write('<td>')
-		self.response.out.write("%s</br>" % wk.key().id())
-		self.response.out.write('</td>')
-				
+		self.response.out.write("<td>%s</td><td>%s</td>" % (wk.phone,wk.key()))
+		
+						
 		self.response.out.write('</tr>')
-	
+		
 	self.response.out.write('</table></br>')
+
+	
 	
 	self.response.out.write(u"""
 			<form method="post" action="/workers/add">
@@ -61,17 +63,21 @@ class WorkersPage(webapp.RequestHandler):
 
 	self.response.out.write("""</body></html> """)
  def init(self):
- 	wk=Worker()
-	wk.surname =u'Петров'
-	wk.name = u'Пётр'
-	wk.email = 'petr@mail.ru'
-	wk.phoneNamb="+7"
+ 	wk=Worker(surname=u"Соколов")	
 	wk.put()
 
-	wk=Worker()
-	wk.surname =u"Иванов"
-	wk.name = u"Иван"
-	wk.email = "ivan@mail.ru"
-	wk.phoneNamb="+7"
+	wk=Worker(surname=u"Коротаев")	
 	wk.put()
-	wk = ()
+	
+	wk=Worker(surname=u"Большаков")	
+	wk.put()
+	wk=Worker(surname=u"Абашин")	
+	wk.put()
+	wk=Worker(surname=u"Штанюк")	
+	wk.put()
+	wk=Worker(surname=u"Вдовин")	
+	wk.put()
+	
+	
+	
+	
