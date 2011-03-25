@@ -1,5 +1,4 @@
 # -*- coding: UTF-8 -*-
-
 import equipment
 import workers
 from google.appengine.ext import db
@@ -13,7 +12,8 @@ class PlanEq(db.Model):
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write("""<html><body>""")
+		self.response.out.write(u"""<html><body>
+		<a href="..">На главную</a>""")
 		peqs=db.GqlQuery('SELECT * FROM PlanEq')
 		#db.delete(peqs)
 		if peqs.count()==0:
@@ -34,15 +34,15 @@ class PlanEqPage(webapp.RequestHandler):
 			self.response.out.write("%s</td></tr>" % mstr)							
 		
 		self.response.out.write('</table>')
-		self.response.out.write("""</body></html>""")
+		self.response.out.write(u"""<a href="pgplaneqadd">Добавить оборудование в план</a> </body></html>""")
 		
 	def init(self):
 		
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAcM"),quantity=1,comment=u'Набор',resp=["aghjcnlvbmxhYnIMCxIGV29ya2VyGAEM"])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAcM"),quantity=1,comment=u'Набор',resp=["aghjcnlvbmxhYnIMCxIGV29ya2VyGAIM"])
 		pe.put()
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAgM"),quantity=1,comment=u'Набор',resp =["aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM"])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAgM"),quantity=1,comment=u'Набор',resp =["aghjcnlvbmxhYnIMCxIGV29ya2VyGAMM"])
 		pe.put()
 		
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAoM"),quantity=1,comment=u'Набор',resp =['aghjcnlvbmxhYnIMCxIGV29ya2VyGAMM','aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAoM"),quantity=1,comment=u'Набор',resp =['aghjcnlvbmxhYnIMCxIGV29ya2VyGAQM','aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'])
 		pe.put()
 		

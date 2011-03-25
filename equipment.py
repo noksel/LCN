@@ -12,7 +12,7 @@ class EqPage(webapp.RequestHandler):
 	def get(self):
 		self.response.out.write("""<html><body>""")
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
-		#db.delete(eqs) удаление всего
+		#db.delete(eqs)
 		if eqs.count()==0:
 			self.init()
 			eqs=db.GqlQuery('SELECT * FROM Equipment')
@@ -33,4 +33,7 @@ class EqPage(webapp.RequestHandler):
 		eq.put()
 		eq=Equipment()
 		eq.name=u'ЛОВ ОВ-65'
+		eq.put()
+		eq=Equipment()
+		eq.name=u'Тележка подьёмная'
 		eq.put()
