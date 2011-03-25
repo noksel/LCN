@@ -9,7 +9,7 @@ class PlanEq(db.Model):
 	idEquipment=db.ReferenceProperty(equipment.Equipment)
 	quantity=db.IntegerProperty()
 	comment=db.StringProperty()
-	resp=db.ListProperty(unicode)
+	resp=db.ListProperty(str)
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
@@ -24,25 +24,25 @@ class PlanEqPage(webapp.RequestHandler):
 														<tr><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
 		for peq in peqs:			
 			self.response.out.write("<tr> <td>%s</td> <td>%s</td><td>%s</td>" % (peq.idEquipment.name,peq.quantity,peq.comment))
-			mstr=unicode()
+			mstr=str()
 			self.response.out.write("<td>")
 			for wrkey in peq.resp:
 				mstr=mstr+"%s "%db.get(wrkey).surname		
 			
 			
 			
-		self.response.out.write("%s</td></tr>" % mstr)							
+			self.response.out.write("%s</td></tr>" % mstr)							
 		
 		self.response.out.write('</table>')
 		self.response.out.write("""</body></html>""")
 		
 	def init(self):
 		
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAkM"),quantity=1,comment=u'Набор',resp=['aghjcnlvbmxhYnIMCxIGV29ya2VyGEQM'])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAcM"),quantity=1,comment=u'Набор',resp=["aghjcnlvbmxhYnIMCxIGV29ya2VyGAEM"])
 		pe.put()
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAoM"),quantity=1,comment=u'Набор',resp =['aghjcnlvbmxhYnIMCxIGV29ya2VyGEUM'])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAgM"),quantity=1,comment=u'Набор',resp =["aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM"])
 		pe.put()
 		
-		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAwM"),quantity=1,comment=u'Набор',resp =['aghjcnlvbmxhYnIMCxIGV29ya2VyGEYM',u'aghjcnlvbmxhYnIMCxIGV29ya2VyGEcM'])
+		pe= PlanEq(idEquipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAoM"),quantity=1,comment=u'Набор',resp =['aghjcnlvbmxhYnIMCxIGV29ya2VyGAMM','aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'])
 		pe.put()
 		
