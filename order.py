@@ -41,14 +41,21 @@ class OrderPage(webapp.RequestHandler):
 		for _ord in ords:
 			for swk in _ord.resp:
 				mstr=mstr+" %s"%db.get(swk).surname
-			self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.typePayment,mstr,_ord.key()))
+			self.response.out.write("<tr>")
+			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.typePayment,mstr,_ord.key()))
 			ends=db.GqlQuery("SELECT * FROM Endorsment")
 			db.delete(ends)
 			self.init()
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+			self.response.out.write("<td><table>")
 			for e in ends:
-			 self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.worker.surname,e.submit))
+				mstr="<input type=\"checkbox\" name=\"subm\" value=\"%s\">"%e.key()
+				if(e.submit==True):
+					mstr="<input type=\"checkbox\" name=\"subm\" value=\"%s\" CHECKED DISABLED>"%e.key()
+					
+				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.worker.surname,mstr))
 			
+			self.response.out.write("</table></td></tr>")
 		self.response.out.write('</table></body></html>')
 	
 	def init(self):
@@ -58,6 +65,6 @@ class OrderPage(webapp.RequestHandler):
 		ends=Endorsment(order=db.get('aghjcnlvbmxhYnILCxIFT3JkZXIYTww'),worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAYM'),submit=False)
 		ends.put()
 		
-		ends=Endorsment(order=db.get('aghjcnlvbmxhYnILCxIFT3JkZXIYTww'),worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'),submit=False)
+		ends=Endorsment(order=db.get('aghjcnlvbmxhYnILCxIFT3JkZXIYTww'),worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'),submit=True)
 		ends.put()
 
