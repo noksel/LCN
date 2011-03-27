@@ -30,41 +30,41 @@ class OrderPage(webapp.RequestHandler):
 			""")
 			
 		ords=db.GqlQuery('SELECT * FROM Order')
-		
+		#db.delete(ords)
 		
 		if(ords.count()==0):
 			self.init()
 			ords=db.GqlQuery('SELECT * FROM Order')
-		self.response.out.write('<table border="1">')
+		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
 		mstr=str()
 	
 		for _ord in ords:
 			for swk in _ord.resp:
 				mstr=mstr+" %s"%db.get(swk).surname
+			if(_ord.status==0):
+				st=u'Черновик'
 			self.response.out.write("<tr>")
-			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.typePayment,mstr,_ord.key()))
-			ends=db.GqlQuery("SELECT * FROM Endorsment")
-			db.delete(ends)
-			self.init()
+			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.typePayment,mstr,st))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
+			
 			for e in ends:
-				mstr="<input type=\"checkbox\" name=\"subm\" value=\"%s\">"%e.key()
+				mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key(),e.key())
 				if(e.submit==True):
-					mstr="<input type=\"checkbox\" name=\"subm\" value=\"%s\" CHECKED DISABLED>"%e.key()
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
 					
 				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.worker.surname,mstr))
 			
 			self.response.out.write("</table></td></tr>")
-		self.response.out.write('</table></body></html>')
+		self.response.out.write('</table></form></body></html>')
 	
 	def init(self):
-		#order=Order(equipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GBoM"),quantity=1,price=19000,vendor=db.get("aghjcnlvbmxhYnIMCxIGVmVuZG9yGBEM"),status=0,typePayment=u'счёт',tz="",resp=[u'aghjcnlvbmxhYnIMCxIGV29ya2VyGAIM'])
-	#	order.put()
+		ordr=Order(equipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAsM"),quantity=1,price=19000,vendor=db.get("aghjcnlvbmxhYnIMCxIGVmVuZG9yGBEM"),status=0,typePayment=u'счёт',tz="",resp=[u'aghjcnlvbmxhYnIMCxIGV29ya2VyGAIM'])
+		ordr.put()
 		
-		ends=Endorsment(order=db.get('aghjcnlvbmxhYnILCxIFT3JkZXIYTww'),worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAYM'),submit=False)
+		ends=Endorsment(order=ordr,worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAYM'),submit=False)
 		ends.put()
 		
-		ends=Endorsment(order=db.get('aghjcnlvbmxhYnILCxIFT3JkZXIYTww'),worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'),submit=True)
+		ends=Endorsment(order=ordr,worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'),submit=True)
 		ends.put()
 

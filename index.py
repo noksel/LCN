@@ -11,6 +11,8 @@ import vendor
 import payer
 import wsgiref.handlers
 import order
+import subm
+import toOrder
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -22,7 +24,8 @@ class MainPage(webapp.RequestHandler):
 		<body>
 			<a href="workers">Сотрудники</a></br>
 			<a href="equipment">Оборудование</a></br>
-			<a href="planeq">План закупок по оборудованию</a>
+			<a href="planeq">План закупок по оборудованию</a></br>
+			<a href="order">Заявки</a>
 		</body>
 		</html>
 
@@ -36,7 +39,9 @@ appl = webapp.WSGIApplication([('/', MainPage)
 															,('/pgplaneqadd',pgplaneqadd.PgPlanEqAdd)
 															,('/vendor',vendor.VendorPage)
 															,('/payer',payer.PayerPage)
-															,('/order',order.OrderPage)],debug=True)
+															,('/order',order.OrderPage)
+															,('/order/submit',subm.submEnd)
+															,('/planeq/to-order',toOrder.ToOrderPage)],debug=True)
 
 def main():
  wsgiref.handlers.CGIHandler().run(appl)

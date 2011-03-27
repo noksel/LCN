@@ -10,6 +10,9 @@ class Equipment(db.Model):
 	
 class EqPage(webapp.RequestHandler):
 	def get(self):
+		eq=Equipment()
+		eq.name=u'Криогенные разъемы. Micro-D connector: on sample holder wiring part it is M83513/02-DC 25 pole receptacle, socket, class M, solder type (пары) Криогенные разъемы M83513/01-DC 25 pole plug, pin, class M, solder type (пары)'
+		eq.put()
 		self.response.out.write("""<html><body>""")
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		#db.delete(eqs)
