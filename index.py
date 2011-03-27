@@ -13,6 +13,7 @@ import wsgiref.handlers
 import order
 import subm
 import toOrder
+import ordadd
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -41,7 +42,8 @@ appl = webapp.WSGIApplication([('/', MainPage)
 															,('/payer',payer.PayerPage)
 															,('/order',order.OrderPage)
 															,('/order/submit',subm.submEnd)
-															,('/planeq/to-order',toOrder.ToOrderPage)],debug=True)
+															,('/planeq/to-order',toOrder.ToOrderPage)
+															,('/order/add',ordadd.Ordadd)],debug=True)
 
 def main():
  wsgiref.handlers.CGIHandler().run(appl)

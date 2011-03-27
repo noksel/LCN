@@ -36,9 +36,10 @@ class OrderPage(webapp.RequestHandler):
 			self.init()
 			ords=db.GqlQuery('SELECT * FROM Order')
 		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
-		mstr=str()
+		
 	
 		for _ord in ords:
+			mstr=str()
 			for swk in _ord.resp:
 				mstr=mstr+" %s"%db.get(swk).surname
 			if(_ord.status==0):

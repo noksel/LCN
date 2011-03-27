@@ -24,7 +24,7 @@ class PlanEqPage(webapp.RequestHandler):
 		self.response.out.write(u"""<table border="1">
 														<tr><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
 		for peq in peqs:			
-			self.response.out.write("<tr> <td>%s</td> <td>%s</td><td>%s</td>" % (peq.equipment.name,peq.quantity,peq.comment))
+			self.response.out.write(u"<tr> <td>%s<a href=\"/planeq/to-order?kplan=%s\">(Создать заказ)</></td> <td>%s</td><td>%s</td>" % (peq.equipment.name,peq.key(),peq.quantity,peq.comment))
 			mstr=str()
 			self.response.out.write("<td>")
 			for wrkey in peq.resp:
@@ -32,7 +32,7 @@ class PlanEqPage(webapp.RequestHandler):
 			
 			
 			
-			self.response.out.write("%s</td><td>%s</td></tr>" % (mstr,peq.key()))							
+			self.response.out.write("%s</td></tr>" % (mstr))							
 		
 		self.response.out.write('</table>')
 		self.response.out.write(u"""</body></html>""")
