@@ -36,7 +36,7 @@ class OrderPage(webapp.RequestHandler):
 		#db.delete(ords)
 		#db.delete(ends)
 		
-		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
+		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
 		
 	
 		for _ord in ords:
@@ -45,8 +45,12 @@ class OrderPage(webapp.RequestHandler):
 				mstr=mstr+"<br>%s"%db.get(swk).surname
 			if(_ord.status==0):
 				st=u'Черновик'
+			elif (_ord.status==1):
+				st=u'На одобрение'
+			elif (_ord.status==2):
+				st=u'Выполнено'
 			self.response.out.write("<tr>")
-			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.typePayment.name,mstr,st))
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.typePayment.name,mstr,st))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -60,7 +64,7 @@ class OrderPage(webapp.RequestHandler):
 			self.response.out.write("</table></td></tr>")
 		self.response.out.write('</table></form></div></body></html>')
 	
-class Ordadd(webapp.RequestHandler):
+class OrdAdd(webapp.RequestHandler):
 	def get(self):
 		_ord=Order()
 		_ord.equipment=db.get(self.request.get('eqipm'))
@@ -86,4 +90,29 @@ class Ordadd(webapp.RequestHandler):
 			_end.comment=""
 			_end.put()			
 		self.redirect('/order')
+class OrdUpdate(webapp.RequestHandler):
+	def get(self):
+		
+		_ord=db.get(self.request.get('ord'))
+		_ord.quantity=int(self.request.get('quant'))
+		_ord.price=int(self.request.get('price'))
+		_ord.vendor=db.get(self.request.get('vendor'))
+		_ord.status=int(self.request.get('status'))
+		_ord.dateVend=self.request.get('date')
+		_ord.typePayment=db.get(self.request.get('tpay'))	
+		_ord.tz=self.request.get('tz')
+		_ord.resp=self.request.get('resp').split(':')
+		_ord.put()
 
+				
+		ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+		db.delete(ends)
+		wks=self.request.get('ends').split(':')
+		for wk in wks:
+			_end=Endorsment()
+			_end.order=_ord
+			_end.worker=db.get(wk)
+			_end.submit=False
+			_end.comment=""
+			_end.put()			
+		self.redirect('/order')

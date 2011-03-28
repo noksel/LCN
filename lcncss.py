@@ -17,7 +17,7 @@ style=u"""
 			#left
 			{
 				padding-left:1%;
-				width:19%;
+				width:14%;
 				height:85%;					
 				background-color:#F79646;	
 				float:left;
@@ -27,7 +27,7 @@ style=u"""
 			{
 				padding-left:1%;
 				float:left;
-				width:79%;
+				width:84%;
 				height:85%;				
 				background-color:#9BBB59;
 				
