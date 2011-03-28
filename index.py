@@ -12,6 +12,7 @@ import subm
 import toOrder
 import ordadd
 import lcncss
+import tpay
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -45,8 +46,10 @@ appl = webapp.WSGIApplication([('/', MainPage)
 															,('/payer/add',payer.PayerAdd)
 															,('/order',order.OrderPage)
 															,('/order/submit',subm.submEnd)
+															,('/order/add',order.Ordadd)
 															,('/planeq/to-order',toOrder.ToOrderPage)
-															,('/order/add',ordadd.Ordadd)],debug=True)
+															,('/tpaymnt',tpay.TypePayPg)
+															,('/tpaymnt/add',tpay.TypePaymntAdd)],debug=True)
 
 
 def init():

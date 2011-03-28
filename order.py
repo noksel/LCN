@@ -2,6 +2,7 @@
 import equipment
 import vendor
 import workers
+import tpay
 import lcncss
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -13,7 +14,7 @@ class Order(db.Model):
 	vendor=db.ReferenceProperty(vendor.Vendor)
 	status=db.IntegerProperty()
 	dateVend=db.StringProperty()
-	typePayment=db.StringProperty() 
+	typePayment=db.ReferenceProperty(tpay.TypePayment) 
 	tz=db.StringProperty(multiline=True)
 	resp=db.ListProperty(str)
 	
@@ -31,7 +32,9 @@ class OrderPage(webapp.RequestHandler):
 			<div id="centre">"""%(lcncss.style,lcncss.templ))
 			
 		ords=db.GqlQuery('SELECT * FROM Order')
+		ends=db.GqlQuery("SELECT * FROM Endorsment")
 		#db.delete(ords)
+		#db.delete(ends)
 		
 		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
 		
@@ -43,7 +46,7 @@ class OrderPage(webapp.RequestHandler):
 			if(_ord.status==0):
 				st=u'Черновик'
 			self.response.out.write("<tr>")
-			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.typePayment,mstr,st))
+			self.response.out.write("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.typePayment.name,mstr,st))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -57,5 +60,30 @@ class OrderPage(webapp.RequestHandler):
 			self.response.out.write("</table></td></tr>")
 		self.response.out.write('</table></form></div></body></html>')
 	
+class Ordadd(webapp.RequestHandler):
+	def get(self):
+		_ord=Order()
+		_ord.equipment=db.get(self.request.get('eqipm'))
+		_ord.quantity=int(self.request.get('quant'))
+		_ord.price=int(self.request.get('price'))
+		_ord.vendor=db.get(self.request.get('vendor'))
+		_ord.status=int(self.request.get('status'))
+		_ord.dateVend=self.request.get('date')
+		_ord.typePayment=db.get(self.request.get('tpay'))	
+		_ord.tz=self.request.get('tz')
+		_ord.resp=self.request.get('resp').split(':')
+		_ord.put()
 
+		
+		
+		
+		wks=self.request.get('ends').split(':')
+		for wk in wks:
+			_end=Endorsment()
+			_end.order=_ord
+			_end.worker=db.get(wk)
+			_end.submit=False
+			_end.comment=""
+			_end.put()			
+		self.redirect('/order')
 

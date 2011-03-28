@@ -14,7 +14,7 @@ class EqPage(webapp.RequestHandler):
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
-			self.response.out.write("%s</br>" % (eq.name))
+			self.response.out.write("<div style=\"line-height:1\">%s</div></br>" % (eq.name))
 				
 		self.response.out.write(u"""
 		</br>
