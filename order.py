@@ -2,6 +2,7 @@
 import equipment
 import vendor
 import workers
+import lcncss
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -26,22 +27,19 @@ class Endorsment(db.Model):
 class OrderPage(webapp.RequestHandler):
 	def get(self):
 		self.response.out.write("""
-		<html><body>
-			""")
+		<html><head>%s</head><body>%s
+			<div id="centre">"""%(lcncss.style,lcncss.templ))
 			
 		ords=db.GqlQuery('SELECT * FROM Order')
 		#db.delete(ords)
 		
-		if(ords.count()==0):
-			self.init()
-			ords=db.GqlQuery('SELECT * FROM Order')
 		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Тип оплаты</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
 		
 	
 		for _ord in ords:
 			mstr=str()
-			for swk in _ord.resp:
-				mstr=mstr+" %s"%db.get(swk).surname
+			for swk in _ord.resp:				
+				mstr=mstr+"<br>%s"%db.get(swk).surname
 			if(_ord.status==0):
 				st=u'Черновик'
 			self.response.out.write("<tr>")
@@ -57,15 +55,7 @@ class OrderPage(webapp.RequestHandler):
 				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.worker.surname,mstr))
 			
 			self.response.out.write("</table></td></tr>")
-		self.response.out.write('</table></form></body></html>')
+		self.response.out.write('</table></form></div></body></html>')
 	
-	def init(self):
-		ordr=Order(equipment=db.get("aghjcnlvbmxhYnIPCxIJRXF1aXBtZW50GAsM"),quantity=1,price=19000,vendor=db.get("aghjcnlvbmxhYnIMCxIGVmVuZG9yGBEM"),status=0,typePayment=u'счёт',tz="",resp=[u'aghjcnlvbmxhYnIMCxIGV29ya2VyGAIM'])
-		ordr.put()
-		
-		ends=Endorsment(order=ordr,worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAYM'),submit=False)
-		ends.put()
-		
-		ends=Endorsment(order=ordr,worker=db.get('aghjcnlvbmxhYnIMCxIGV29ya2VyGAUM'),submit=True)
-		ends.put()
+
 

@@ -1,29 +1,15 @@
 # -*-  coding: UTF-8 -*-
+import lcncss
+import my_js
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
 class ToOrderPage(webapp.RequestHandler):
 	def get(self):
 		pl=db.get(self.request.get('kplan'))
-		self.response.out.write(u"""<html><head><script>equipment='%s';host='http://localhost:8080';
-		function getList(chName)
-		 {
-		 	cht=document.getElementsByName(chName)
-			 astr='';
-		 	for(var i=0;i<cht.length;i++)
-		 	{
-				
-				if (cht[i].checked)
-				 {
-				  if(astr=='')
-				 		astr=cht[i].value
-				 	else
-				 		astr=astr+':'+cht[i].value
-				 }
-			}
-			return astr;
-		};
-		</script></head><body><b>Создание заявки</b><table>"""%pl.equipment.key())
+		self.response.out.write(u"""<html><head>%s<script>equipment='%s';%s
+		%s
+		</script></head><body>%s <div id="centre"><b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.host,my_js.getChList,lcncss.templ))
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%pl.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%pl.quantity)
 		
@@ -55,4 +41,4 @@ class ToOrderPage(webapp.RequestHandler):
 		for wk in wks:
 			self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 		
-		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&tpay='+document.getElementsByName('typePayment')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></body></html>"""%(":".join(pl.resp)))
+		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&tpay='+document.getElementsByName('typePayment')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(":".join(pl.resp)))

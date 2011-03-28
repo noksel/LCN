@@ -15,7 +15,7 @@ class Ordadd(webapp.RequestHandler):
 		_ord.dateVend=self.request.get('date')
 		_ord.typePament=self.request.get('tpay')
 		_ord.resp=self.request.get('resp').split(':')
-		#_ord.put()
+		_ord.put()
 
 		
 		
@@ -23,10 +23,10 @@ class Ordadd(webapp.RequestHandler):
 		wks=self.request.get('ends').split(':')
 		for wk in wks:
 			_end=order.Endorsment()
-			#_end.order=_ord
+			_end.order=_ord
 			_end.worker=db.get(wk)
 			_end.submit=False
 			_end.comment=""
-			#_end.put()
+			_end.put()
 			
 		self.redirect('/order')

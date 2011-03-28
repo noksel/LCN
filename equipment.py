@@ -1,6 +1,6 @@
 # -*- coding: UTF-8-*-
 import cgi
-
+import lcncss
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -9,34 +9,24 @@ class Equipment(db.Model):
 	
 	
 class EqPage(webapp.RequestHandler):
-	def get(self):
-		eq=Equipment()
-		eq.name=u'Криогенные разъемы. Micro-D connector: on sample holder wiring part it is M83513/02-DC 25 pole receptacle, socket, class M, solder type (пары) Криогенные разъемы M83513/01-DC 25 pole plug, pin, class M, solder type (пары)'
-		eq.put()
-		self.response.out.write("""<html><body>""")
+	def get(self):		
+		self.response.out.write(u"""<html><head>%s</head><body>%s<div id="centre"> Оборудование: </br></br>"""%(lcncss.style,lcncss.templ))
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
-		#db.delete(eqs)
-		if eqs.count()==0:
-			self.init()
-			eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
-			self.response.out.write("%s %s</br>" % (eq.name,eq.key()))
+			self.response.out.write("%s</br>" % (eq.name))
 				
-		self.response.out.write("""</body></html>""")		
-	def init(self):
+		self.response.out.write(u"""
+		</br>
+		<form method="post" action="/equipment/add">
+		Добавить оборудование:</br>
+		<input name="name"> <input type="submit" value="Добавить">
+		</form>		
+		<div></body></html>""")
+class AddEq(webapp.RequestHandler):
+	def post(self):
 		eq=Equipment()
-		eq.name=u'Пины HPA-OJ,SPR-OW-1'
+		eq.name=self.request.get('name')
 		eq.put()
-		eq=Equipment()
-		eq.name=u'Микросхемы'
-		eq.put()
-		eq=Equipment()
-		eq.name=u'Резисторы'
-		eq.put()
-		eq=Equipment()
-		eq.name=u'ЛОВ ОВ-65'
-		eq.put()
-		eq=Equipment()
-		eq.name=u'Тележка подьёмная'
-		eq.put()
+		self.redirect('/equipment')
+		
