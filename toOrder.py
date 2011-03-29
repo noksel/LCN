@@ -25,7 +25,19 @@ class ToOrderPage(webapp.RequestHandler):
 		self.response.out.write(u"""<tr><td>Статус заявки:</td> <td><SELECT name=\"status\">
 				<OPTION value=\"0\">Черновик
 				<OPTION value=\"1\">На одобрение</SELECT></td></tr>
-				<tr><td>Дата поставки:</td> <td><input name=\"dateVend\"></td></tr><tr><td>Тип оплаты:</td><td><SELECT name="tpaymnt">""")
+				<tr><td>Дата поставки:</td> <td><input name=\"dateVend\"></td></tr>""")
+				
+		
+		self.response.out.write(u"<tr><td>Плательщик:</td> <td><SELECT name=\"payer\">")
+		prs =db.GqlQuery("SELECT * FROM Payer")
+		
+		for pr in prs:
+			self.response.out.write(u"<OPTION value=\"%s\">%s"%(pr.key(),pr.name))
+			
+		self.response.out.write(u"</SELECT></td></tr>")	
+				
+				
+		self.response.out.write(u"""<tr><td>Тип оплаты:</td><td><SELECT name="tpaymnt">""")
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		for tp in tps:
 			self.response.out.write(u"<OPTION value=\"%s\">%s"%(tp.key(),tp.name))
@@ -45,4 +57,5 @@ class ToOrderPage(webapp.RequestHandler):
 		for wk in wks:
 			self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 		
-		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(":".join(pl.resp)))
+		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href='/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(":".join(pl.resp)))
+		db.delete(pl)

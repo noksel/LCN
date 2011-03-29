@@ -41,7 +41,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	</script>
 	</head><body>%s
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
-	Оборудование:<SELECT NAME="eqid">"""%(lcncss.style,my_js.host,my_js.getChList,lcncss.templ))
+	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,my_js.host,my_js.getChList,lcncss.templ))
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment')
 	for eq in eqs:
@@ -58,7 +58,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		Коментарий:<input name="comment"></br>
 		<input value="Добавить" type="button" onclick="javascript:(function(){
 		sl=document.getElementsByName('eqid');
-		str=host+'/planeq/add?eqid=';
+		str='/planeq/add?eqid=';
 		str=str+sl[0].value;	
 		inp=document.getElementsByName('quant');
 		str=str+'&quant='+inp[0].value;	

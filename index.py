@@ -14,6 +14,7 @@ import ordadd
 import lcncss
 import tpay
 import updateOrder
+import properties
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -57,8 +58,7 @@ appl = webapp.WSGIApplication([('/', MainPage)
 
 def init():
 
-	eqs=db.GqlQuery('SELECT * FROM Equipment')
-	db.delete(eqs)
+	
 	
 	eqp=equipment.Equipment(name=u'Пины HPA-OJ,SPR-OW-1')
 	eqp.put()
@@ -73,24 +73,42 @@ def init():
 	eq=equipment.Equipment(name=u'Криогенные разъемы. Micro-D connector: on sample holder wiring part it is M83513/02-DC 25 pole receptacle, socket, class M, solder type (пары) Криогенные разъемы M83513/01-DC 25 pole plug, pin, class M, solder type (пары)')
 	eq.put()
 	
-	wks=db.GqlQuery('SELECT * FROM Worker')
-	db.delete(wks)
-	
- 	wk=workers.Worker(surname=u"Соколов")	
+	wk=workers.Worker(surname=u"Вдовин", name=u"Вячеслав", patronomic=u"Фёдорович", email=u'vdovin_iap@mail.ru')
+	wk.put()
+	wk=workers.Worker(surname=u"Кузнецов", name=u"Леонид", patronomic=u"Сергеевич")	
+	wk.put()
+	wk=workers.Worker(surname=u"Ширяев", name=u"Михаил", patronomic=u"Виссарионович", email=u'mv_shi@mail.ru')
+	wk.put()	
+	wk=workers.Worker(surname=u"Соколов")	
 	wk.put()
 	wkk=workers.Worker(surname=u"Коротаев")	
 	wkk.put()	
-	wkb=workers.Worker(surname=u"Большаков")	
+	wkb=workers.Worker(surname=u"Большаков", name=u"Олег", email=u'obolshakov@mail.ru')	
 	wkb.put()
-	wka=workers.Worker(surname=u"Абашин")	
+	wka=workers.Worker(surname=u"Абашин", name=u"Евгений",patronomic=u"Борисович",email=u'evgbor46@mail.ru')	
 	wka.put()
 	wksh=workers.Worker(surname=u"Штанюк")	
 	wksh.put()
-	wk=workers.Worker(surname=u"Вдовин")	
+	wk=workers.Worker(surname=u"Тарсов")	
+	wk.put()
+	wk=workers.Worker(surname=u"Елисеев")	
+	wk.put()
+	wk=workers.Worker(surname=u"Темнов")	
+	wk.put()
+	wk=workers.Worker(surname=u"Дрягин")	
 	wk.put()
 	
-	peqs=db.GqlQuery('SELECT * FROM PlanEq')	
-	db.delete(peqs)	
+	tpaymnt= tpay.TypePayment(name=u'Контракт')
+	tpaymnt.put()
+	tpaymnt= tpay.TypePayment(name=u'Котировка')
+	tpaymnt.put()
+	tpaymnt= tpay.TypePayment(name=u'Счёт')
+	tpaymnt.put()
+	tpaymnt= tpay.TypePayment(name=u'Наш долг')
+	tpaymnt.put()
+
+	
+	
 	pe= PlanEq.PlanEq(equipment=eqp,quantity=1,comment=u'Набор',resp=["%s"%wkk.key()])
 	pe.put()
 	pe= PlanEq.PlanEq(equipment=eqm,quantity=1,comment=u'Набор',resp =["%s"%wkb.key()])
@@ -98,8 +116,7 @@ def init():
 	pe= PlanEq.PlanEq(equipment=eql,quantity=1,comment=u'Набор',resp =["%s"%wka.key(),"%s"%wksh.key()])
 	pe.put()
 	
-	prs=db.GqlQuery('SELECT * FROM Payer')
-	db.delete(prs)
+	
 	pr=payer.Payer(name=u'ОКБ РВТ')
 	pr.put()		
 	pr=payer.Payer(name=u'Гиком')
@@ -107,8 +124,7 @@ def init():
 	pr=payer.Payer(name=u'ЛКН(НГТУ)')
 	pr.put()
 	
-	vds=db.GqlQuery('SELECT * FROM Vendor')	
-	db.delete(vds)
+	
 	vd=vendor.Vendor(name=u'ООО "Абтроникс"')
 	vd.put()
 	vd=vendor.Vendor(name=u'ООО "Миком"')
@@ -121,9 +137,47 @@ def init():
 	vd.put()
 	vd=vendor.Vendor(name=u'ООО "Торговый Дом Паллет Тракс"')
 	vd.put()
+	
+def erase():
+	
+	eqs=db.GqlQuery('SELECT * FROM Equipment')
+	db.delete(eqs)
+	
+	wks=db.GqlQuery('SELECT * FROM Worker')
+	db.delete(wks)
+	
+	tps=db.GqlQuery('SELECT * FROM TypePayment')
+	db.delete(tps)
+	
+	peqs=db.GqlQuery('SELECT * FROM PlanEq')	
+	db.delete(peqs)	
+
+	prs=db.GqlQuery('SELECT * FROM Payer')
+	db.delete(prs)
+	
+	vds=db.GqlQuery('SELECT * FROM Vendor')	
+	db.delete(vds)
+	
+	ords=db.GqlQuery('SELECT * FROM Order')
+	db.delete(ords)
+	
+	ends=db.GqlQuery('SELECT * FROM Endorsment')
+	db.delete(ends)
+	
+	prs=db.GqlQuery("select * from Property")
+	db.delete(prs)
+		
 def main():
  wsgiref.handlers.CGIHandler().run(appl)
- #init();
+ #erase()
+ prs=db.GqlQuery("select * from Property where name=:name",name="init")
+ if (prs.count()==0):
+ 
+ 	init()
+ 	pr=properties.Property(name="init", value="true")
+ 	pr.put()
+ 
+
  
 if __name__=="__main__":
 	main()

@@ -18,7 +18,7 @@ style=u"""
 			{
 				padding-left:1%;
 				width:14%;
-				height:85%;					
+				height:100%;								
 				background-color:#F79646;	
 				float:left;
 								
@@ -26,9 +26,10 @@ style=u"""
 			#centre
 			{
 				padding-left:1%;
+				padding-top:1%;
 				float:left;
-				width:84%;
-				height:85%;				
+				height:100%;
+				width:84%;								
 				background-color:#9BBB59;
 				
 			}
@@ -42,4 +43,9 @@ templ=u"""<div id="top"><a class="top" href="/">На главную</a></div>
 				<a href="/equipment">Оборудование</a></br><hr>
 				<a href="/planeq">План закупок по оборудованию</a></br><hr>
 				<a href="/order">Заявки</a><hr>
+				<hr>
+			
+				<a href="/tpaymnt">Типы платежей</a>
+				<a href="/vendor">Поставщики</a>
+				<a href="/payer">Плательщики</a>
 			</div>"""

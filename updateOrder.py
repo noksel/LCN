@@ -41,8 +41,19 @@ class UpdateOrderPg(webapp.RequestHandler):
 				<OPTION value=\"0\">Черновик
 				<OPTION SELECTED value=\"2\">Выполнена</SELECT></td></tr>""")		
 				
-		self.response.out.write(u"""<tr><td>Дата поставки:</td> <td><input name=\"dateVend\" value=\"%s\"></td></tr><tr><td>Тип оплаты:</td><td><SELECT name="tpaymnt">"""%_ord.dateVend)
+		self.response.out.write(u"""<tr><td>Дата поставки:</td> <td><input name=\"dateVend\" value=\"%s\"></td></tr>"""%_ord.dateVend)
 		
+		self.response.out.write(u"<tr><td>Плательщик:</td> <td><SELECT name=\"payer\">")
+		prs =db.GqlQuery("SELECT * FROM Payer")		
+		for pr in prs:
+			if(pr.key()==_ord.payer.key()):
+				self.response.out.write(u"<OPTION SELECTED value=\"%s\">%s"%(pr.key(),pr.name))			
+			else:
+				self.response.out.write(u"<OPTION value=\"%s\">%s"%(pr.key(),pr.name))			
+		
+		self.response.out.write(u"</SELECT></td></tr>")
+		
+		self.response.out.write(u"""<tr><td>Тип оплаты:</td><td><SELECT name="tpaymnt">""")
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		
 		for tp in tps:
@@ -66,7 +77,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		for wk in wks:
 			tmp=False
 			for end in ends:
-				if (wk.key()==end.worker.key()):
+				if (wk.key()==end.submiter.key()):
 					tmp=True
 					break
 			if(tmp==True):
@@ -75,4 +86,4 @@ class UpdateOrderPg(webapp.RequestHandler):
 				self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 					
 		# количество обновляется. вернуть в план??
-		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(_ord.key(),":".join(_ord.resp)))
+		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(_ord.key(),":".join(_ord.resp)))

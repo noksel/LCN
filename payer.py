@@ -8,14 +8,11 @@ class Payer(db.Model):
 	
 class PayerPage(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(u"""<html><head>%s</head><body>%s <div id="centre"><table>
-		<tr><th>Птательщик</th></tr>
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div id="centre"><table border="1">
+		<tr><th>Плательщик</th></tr>
 		"""%(lcncss.style,lcncss.templ))
 		prs=db.GqlQuery('SELECT * FROM Payer')
 		
-		if(prs.count()==0):
-			self.init()
-			prs=db.GqlQuery('SELECT * FROM Payer')
 		for pr in prs:
 			self.response.out.write("<tr><td>%s</td></tr>"%(pr.name))
 		
