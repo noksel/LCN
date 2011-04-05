@@ -95,7 +95,7 @@ class OrdAdd(webapp.RequestHandler):
 		self.redirect('/order')
 class OrdUpdate(webapp.RequestHandler):
 	def get(self):
-		
+	
 		_ord=db.get(self.request.get('ord'))
 		_ord.quantity=int(self.request.get('quant'))
 		_ord.price=float(self.request.get('price'))
