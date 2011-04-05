@@ -8,9 +8,8 @@ class UpdateOrderPg(webapp.RequestHandler):
 	def get(self):
 		_ord=db.get(self.request.get('kord'))
 		
-		self.response.out.write(u"""<html><head>%s<script>equipment='%s';%s
-		%s
-		</script></head><body>%s<b>Правка заявки</b><table>"""%(lcncss.style,_ord.equipment.key(),my_js.host,my_js.getChList,lcncss.Mtempl.beg))
+		self.response.out.write(u"""<html><head>%s<script>equipment='%s';	%s
+		</script></head><body>%s<b>Правка заявки</b><table>"""%(lcncss.style,_ord.equipment.key(), my_js.getChList,lcncss.Mtempl.beg))
 		
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%_ord.quantity)

@@ -10,7 +10,6 @@ import wsgiref.handlers
 import order
 import subm
 import toOrder
-import ordadd
 import lcncss
 import tpay
 import updateOrder
@@ -37,6 +36,9 @@ class MainPage(webapp.RequestHandler):
 appl = webapp.WSGIApplication([('/', MainPage)
 															,('/workers',workers.WorkersPage)
 															,('/workers/add',workers.AddWorker)
+															,('/worker/set-passwd-pg',workers.SetPasswdPg)
+															,('/worker/set-passwd',workers.SetPasswd)
+															,('/worker/gen-reset',workers.GenReset)
 															,('/equipment',equipment.EqPage)
 															,('/equipment/add',equipment.AddEq)
 															,('/planeq',PlanEq.PlanEqPage)
@@ -73,11 +75,11 @@ def init():
 	eq=equipment.Equipment(name=u'Криогенные разъемы. Micro-D connector: on sample holder wiring part it is M83513/02-DC 25 pole receptacle, socket, class M, solder type (пары) Криогенные разъемы M83513/01-DC 25 pole plug, pin, class M, solder type (пары)')
 	eq.put()
 	
-	wk=workers.Worker(surname=u"Вдовин", name=u"Вячеслав", patronomic=u"Фёдорович", email=u'vdovin_iap@mail.ru')
+	wk=workers.Worker(surname=u"Вдовин", name=u"Вячеслав", patronymic=u"Фёдорович", email=u'vdovin_iap@mail.ru')
 	wk.put()
-	wk=workers.Worker(surname=u"Кузнецов", name=u"Леонид", patronomic=u"Сергеевич")	
+	wk=workers.Worker(surname=u"Кузнецов", name=u"Леонид", patronymic=u"Сергеевич")	
 	wk.put()
-	wk=workers.Worker(surname=u"Ширяев", name=u"Михаил", patronomic=u"Виссарионович", email=u'mv_shi@mail.ru')
+	wk=workers.Worker(surname=u"Ширяев", name=u"Михаил", patronymic=u"Виссарионович", email=u'mv_shi@mail.ru')
 	wk.put()	
 	wk=workers.Worker(surname=u"Соколов")	
 	wk.put()
@@ -85,7 +87,7 @@ def init():
 	wkk.put()	
 	wkb=workers.Worker(surname=u"Большаков", name=u"Олег", email=u'obolshakov@mail.ru')	
 	wkb.put()
-	wka=workers.Worker(surname=u"Абашин", name=u"Евгений",patronomic=u"Борисович",email=u'evgbor46@mail.ru')	
+	wka=workers.Worker(surname=u"Абашин", name=u"Евгений",patronymic=u"Борисович",email=u'evgbor46@mail.ru')	
 	wka.put()
 	wksh=workers.Worker(surname=u"Штанюк")	
 	wksh.put()
@@ -96,6 +98,8 @@ def init():
 	wk=workers.Worker(surname=u"Темнов")	
 	wk.put()
 	wk=workers.Worker(surname=u"Дрягин")	
+	wk.put()
+	wk=workers.Worker(surname=u"Леснов", passwd="111111" )	
 	wk.put()
 	
 	tpaymnt= tpay.TypePayment(name=u'Контракт')

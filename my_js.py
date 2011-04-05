@@ -17,5 +17,3 @@ getChList="""function getList(chName)
 			}
 			return astr;
 		};"""
-		
-host="""host='http://localhost:8080';"""
