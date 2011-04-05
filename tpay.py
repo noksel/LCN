@@ -9,7 +9,7 @@ class TypePayment(db.Model):
 	
 class TypePayPg(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(u"""<html><head>%s</head><body>%s <div id="centre">Типы оплаты: </br></br> <table border="1">"""%(lcncss.style,lcncss.templ))
+		self.response.out.write(u"""<html><head>%s</head><body>%sТипы оплаты: </br></br> <table border="1">"""%(lcncss.style,lcncss.Mtempl.beg))
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		for tp in tps:
 			self.response.out.write("<tr><td>%s</td></tr>"%(tp.name))
@@ -19,7 +19,7 @@ class TypePayPg(webapp.RequestHandler):
 		Добавить название типа платежа:</br> <input name="name"> <input type="submit" value="Добавить">
 		</form>		
 		""")
-		self.response.out.write("""</div></body></html>""")
+		self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
 		
 class TypePaymntAdd(webapp.RequestHandler):
 	def post(self):

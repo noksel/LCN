@@ -10,7 +10,7 @@ class Equipment(db.Model):
 	
 class EqPage(webapp.RequestHandler):
 	def get(self):		
-		self.response.out.write(u"""<html><head>%s</head><body>%s<div id="centre"> Список оборудования:</br></br> <table border="1">"""%(lcncss.style,lcncss.templ))
+		self.response.out.write(u"""<html><head>%s</head><body>%s Список оборудования:</br></br> <table border="1">"""%(lcncss.style,lcncss.Mtempl.beg))
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
@@ -22,7 +22,7 @@ class EqPage(webapp.RequestHandler):
 		Добавить оборудование:</br>
 		<input name="name" size="50"><input type="submit" value="Добавить">
 		</form>		
-		<div></body></html>""")
+		%s</body></html>"""%lcncss.Mtempl.end)
 class AddEq(webapp.RequestHandler):
 	def post(self):
 		eq=Equipment()

@@ -29,11 +29,11 @@ class MainPage(webapp.RequestHandler):
 			</head>
 		<body>
 			%s
-			<div id="centre"></div>
+		Объявления:%s
 		</body>
 		</html>
 
-		"""%(lcncss.style,lcncss.templ))
+		"""%(lcncss.style,lcncss.Mtempl.beg,lcncss.Mtempl.end))
 appl = webapp.WSGIApplication([('/', MainPage)
 															,('/workers',workers.WorkersPage)
 															,('/workers/add',workers.AddWorker)
@@ -171,7 +171,7 @@ def main():
  wsgiref.handlers.CGIHandler().run(appl)
  #erase()
  prs=db.GqlQuery("select * from Property where name=:name",name="init")
- if (prs.count()==0):
+ if (prs.count()==0 or prs[0].value=="false"):
  
  	init()
  	pr=properties.Property(name="init", value="true")

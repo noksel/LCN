@@ -10,7 +10,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		
 		self.response.out.write(u"""<html><head>%s<script>equipment='%s';%s
 		%s
-		</script></head><body>%s <div id="centre"><b>Правка заявки</b><table>"""%(lcncss.style,_ord.equipment.key(),my_js.host,my_js.getChList,lcncss.templ))
+		</script></head><body>%s<b>Правка заявки</b><table>"""%(lcncss.style,_ord.equipment.key(),my_js.host,my_js.getChList,lcncss.Mtempl.beg))
 		
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%_ord.quantity)
@@ -86,4 +86,4 @@ class UpdateOrderPg(webapp.RequestHandler):
 				self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 					
 		# количество обновляется. вернуть в план??
-		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(_ord.key(),":".join(_ord.resp)))
+		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href=host+'/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(_ord.key(),":".join(_ord.resp),lcncss.Mtempl.end))

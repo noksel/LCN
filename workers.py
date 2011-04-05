@@ -15,9 +15,9 @@ class WorkersPage(webapp.RequestHandler):
  def get(self):
 	self.response.out.write("""<html>
 														%s
-														<body>%s"""%(lcncss.style,lcncss.templ))
+														<body>%s"""%(lcncss.style,lcncss.Mtempl.beg))
 	wks=db.GqlQuery('SELECT * FROM Worker')
-	self.response.out.write(u'<div id="centre">Список сотрудников лаборатории:</br></br>')
+	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
 	self.response.out.write('<table border="1">')
 	self.response.out.write(u"""
 														<tr><th>Фамилия</th><th>Отчество</th><th>Имя</th><th>E-mail</th><th>Телефон</th> </tr>
@@ -50,9 +50,9 @@ class WorkersPage(webapp.RequestHandler):
 				</div>
 				</div>
 				<input type="submit" value="Добавить">
-			</form></div>""")
+			</form>""")
 
-	self.response.out.write("""</body></html> """)
+	self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
 
 class AddWorker(webapp.RequestHandler):
 	def post(self):

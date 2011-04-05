@@ -15,9 +15,7 @@ class PlanEq(db.Model):
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
 		self.response.out.write(u"""<html><head>%s </head><body>%s
-		<div id="centre">
-		<a href="..">На главную</a></br>
-		"""%(lcncss.style,lcncss.templ))
+		"""%(lcncss.style,lcncss.Mtempl.beg))
 		
 		peqs=db.GqlQuery('SELECT * FROM PlanEq')	
 		self.response.out.write(u"""<table border="1">
@@ -26,22 +24,20 @@ class PlanEqPage(webapp.RequestHandler):
 			self.response.out.write(u"<tr> <td>%s<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</></td> <td>%s</td><td>%s</td>" % (peq.equipment.name,peq.key(),peq.quantity,peq.comment))
 			mstr=str()
 			self.response.out.write("<td>")
-			for wrkey in peq.resp:
-				mstr=mstr+"%s "%db.get(wrkey).surname	
+			mstr=" ".join([db.get(wrkey).surname for wrkey in peq.resp])			
 			self.response.out.write("%s</td></tr>" % (mstr))							
 		
 		self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
-		self.response.out.write(u"""</div></body></html>""")
+		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
 		
 class PgPlanEqAdd(webapp.RequestHandler):
  def get(self):
 	self.response.out.write(u"""<html><head>%s
 	<script language="javascript">%s
-		%s
 	</script>
 	</head><body>%s
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
-	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,my_js.host,my_js.getChList,lcncss.templ))
+	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,my_js.getChList,lcncss.Mtempl.beg))
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment')
 	for eq in eqs:
@@ -69,7 +65,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		""")
 
 	
-	self.response.out.write("""</form></div></body></html> """)
+	self.response.out.write("""</form>%s</body></html> """%(lcncss.Mtempl.end))
 	
 	
 class PEAdd(webapp.RequestHandler):

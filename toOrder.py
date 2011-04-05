@@ -9,7 +9,7 @@ class ToOrderPage(webapp.RequestHandler):
 		pl=db.get(self.request.get('kplan'))
 		self.response.out.write(u"""<html><head>%s<script>equipment='%s';%s
 		%s
-		</script></head><body>%s <div id="centre"><b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.host,my_js.getChList,lcncss.templ))
+		</script></head><body>%s <b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.host,my_js.getChList,lcncss.Mtempl.beg))
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%pl.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%pl.quantity)
 		
@@ -45,9 +45,8 @@ class ToOrderPage(webapp.RequestHandler):
 		self.response.out.write(u"""</SELECT></td></tr>		
 				<tr><td>Тех.здание:</td> <td><textarea name="tz" rows="5" cols="40"></textarea></td></tr>""") #опциональное
 				
-		mstr=str()
-		for p in pl.resp:
-				mstr=mstr+"%s "%db.get(p).surname		
+		mstr=str()				
+		mstr=" ".join([db.get(rs).surname for rs in pl.resp])
 		self.response.out.write(u"<tr><td>Ответственные:</td> <td>%s</td></tr></table>"%mstr)
 		
 		self.response.out.write(u'Утверждают:</br>')
@@ -57,5 +56,4 @@ class ToOrderPage(webapp.RequestHandler):
 		for wk in wks:
 			self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 		
-		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href='/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')"></div></body></html>"""%(":".join(pl.resp)))
-		db.delete(pl)
+		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href='/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(":".join(pl.resp), lcncss.Mtempl.end))

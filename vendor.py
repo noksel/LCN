@@ -14,11 +14,10 @@ class VendorPage(webapp.RequestHandler):
 			%s
 		</head>
 		<body>
-		%s		
-		<dif id="centre">
+		%s
 		<b>Поставщики:</b>
 		<table>
-		"""%(lcncss.style,lcncss.templ))
+		"""%(lcncss.style,lcncss.Mtempl.beg))
 		vds=db.GqlQuery('SELECT * FROM Vendor')			
 		for vd in vds:
 			self.response.out.write("<tr><td>%s</td></tr>"% (vd.name))
@@ -29,9 +28,9 @@ class VendorPage(webapp.RequestHandler):
 		Добавить поставщика:<br>
 		Название: <input name="name"> <input type="submit" value="Добавить">
 		</form>
-		</div>
+		%s
 		</body></html>
-		""")
+		"""%lcncss.Mtempl.end)
 		
 class VendorAdd(webapp.RequestHandler):
 	def post(self):

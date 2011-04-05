@@ -8,9 +8,9 @@ class Payer(db.Model):
 	
 class PayerPage(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(u"""<html><head>%s</head><body>%s <div id="centre"><table border="1">
+		self.response.out.write(u"""<html><head>%s</head><body>%s <table border="1">
 		<tr><th>Плательщик</th></tr>
-		"""%(lcncss.style,lcncss.templ))
+		"""%(lcncss.style,lcncss.Mtempl.beg))
 		prs=db.GqlQuery('SELECT * FROM Payer')
 		
 		for pr in prs:
@@ -21,7 +21,7 @@ class PayerPage(webapp.RequestHandler):
 		</br>Добавить плательщика:</br>
 		Название: <input name="name"> <input type="submit" value="Добавить">
 		</form>
-		</div></body></html>""")
+		%s</body></html>"""%lcncss.Mtempl.end)
 		
 class PayerAdd(webapp.RequestHandler):
 	def post(self):
