@@ -14,6 +14,7 @@ import lcncss
 import tpay
 import updateOrder
 import properties
+import sign
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -21,6 +22,9 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 class MainPage(webapp.RequestHandler):
   def get(self):
+	
+	if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
+			lwk= db.get(self.request.str_cookies['session'])			
 	self.response.out.write(u"""
 		<html>
 		<head>
@@ -32,8 +36,10 @@ class MainPage(webapp.RequestHandler):
 		</body>
 		</html>
 
-		"""%(lcncss.style,lcncss.Mtempl.beg,lcncss.Mtempl.end))
-appl = webapp.WSGIApplication([('/', MainPage)
+		"""%(lcncss.style,lcncss.bg(lwk.surname),lcncss.Mtempl.end))
+appl = webapp.WSGIApplication([('/login', sign.Login)
+															,('/', MainPage)
+															,('/sign',sign.Sign)
 															,('/workers',workers.WorkersPage)
 															,('/workers/add',workers.AddWorker)
 															,('/worker/set-passwd-pg',workers.SetPasswdPg)
@@ -99,7 +105,7 @@ def init():
 	wk.put()
 	wk=workers.Worker(surname=u"Дрягин")	
 	wk.put()
-	wk=workers.Worker(surname=u"Леснов", passwd="111111" )	
+	wk=workers.Worker(surname=u"Леснов", email='ss18f@mail.ru',passwd="111111" )	
 	wk.put()
 	
 	tpaymnt= tpay.TypePayment(name=u'Контракт')

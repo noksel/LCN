@@ -72,7 +72,7 @@ class AddWorker(webapp.RequestHandler):
 		self.redirect('/workers')
 
 class SetPasswd(webapp.RequestHandler):
-	def get(self):
+	def post(self):
 		key=self.request.get('rkey')
 		rsts = db.GqlQuery("SELECT * FROM ResetPasswd WHERE rkey=:rkey",rkey=key)
 		rst=rsts[0]		
@@ -98,7 +98,7 @@ class SetPasswdPg(webapp.RequestHandler):
 				{
 					var fm = document.createElement("form");
 					fm.action="/worker/set-passwd";
-					fm.method="get";
+					fm.method="post";
      			var inp = document.createElement("input");     
      			inp.name='rkey';
     			inp.value='%s';
