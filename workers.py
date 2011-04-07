@@ -162,5 +162,5 @@ class GenReset(webapp.RequestHandler):
 	def doSmf(self):
 		wk=db.get(self.request.get('wk'))		
 		rs=ResetPasswd(rkey=str(random.randrange(1000)), worker=wk)
-		self.response.out.write("<html><body><a href=\"/worker/set-passwd-pg?rkey=%s\">/worker/set-passwd-pg?rkey=%s<a></body></html>"%(rs.rkey,rs.rkey))
+		self.response.out.write(u"""<html><body>Для задания пароля для "%s" перейдите по следующей ссылке:<br/><a href=\"/worker/set-passwd-pg?rkey=%s\">/worker/set-passwd-pg?rkey=%s<a></body></html>"""%(wk.surname,rs.rkey,rs.rkey))
 		rs.put()

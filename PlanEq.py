@@ -48,11 +48,10 @@ class PgPlanEqAdd(webapp.RequestHandler):
  def doSmf(self):
 	wk= db.get(self.request.str_cookies['session']) 
 	self.response.out.write(u"""<html><head>%s
-	<script language="javascript">%s
-	</script>
+	<script src="/script/my.js"></script>
 	</head><body>%s
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
-	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,my_js.getChList,lcncss.beg(wk.surname)))
+	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(wk.surname)))
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment')
 	for eq in eqs:

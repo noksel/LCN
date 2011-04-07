@@ -15,8 +15,8 @@ class ToOrderPage(webapp.RequestHandler):
 	def doSmf(self):
 		pl=db.get(self.request.get('kplan'))
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s<script>equipment='%s';	%s
-		</script></head><body>%s <b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.getChList,lcncss.beg(wk.surname)))
+		self.response.out.write(u"""<html><head>%s<script src="/script/my.js"></script><script>equipment='%s';</script>
+			</head><body>%s <b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),lcncss.beg(wk.surname)))
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%pl.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%pl.quantity)
 		
