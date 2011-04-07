@@ -7,17 +7,59 @@ class Login(webapp.RequestHandler):
 	def get(self):
 		
 		if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
-			wk= db.get(self.request.str_cookies['session'])
-			self.response.out.write("""%s"""%wk.surname)
+			try:
+				wk= db.get(self.request.str_cookies['session'])
+				"%s"%wk.surname
+				self.redirect('/')				
+			except:
+			 self.CreateLgPg()			
 		else:
-			self.response.out.write("""
+			self.CreateLgPg()
+
+	def CreateLgPg(self):	
+		self.response.out.write("""
 		<html>
+		<style>
+			#frm
+			{
+				position: absolute;
+				left:35%;
+				top: 30%;
+				background-color: #45A6F2;
+				border-width:thin;
+				
+				padding-top:20px;
+				padding-bottom:10px;
+				padding-left:20px;
+				padding-right:20px;
+			}
+			#table
+			{
+			display:table;
+			}
+			div.row
+			{
+			display:table-row;
+			}
+			div.cell
+			{
+			display:table-cell;
+			}
+		</style>
 			<body>
+			<div id="frm">
 				<form method="post" action="/sign">
-					E-mail: <input name="email"><br/>
-					Пароль: <input name="passwd" type="password">
+					<div id="table">
+						<div class="row"><div class="cell">E-mail:</div> <div class="cell"><input name="email"></div></div>
+						<div class="row"><div class="cell">Пароль:</div> <div class="cell"><input name="passwd" type="password"></div></div>
+					</div>
+					<input type="checkbox" name="svssn" value="true"> Оставаться в системе<br/>
+
+					<br/>
 					<input type="submit" value="Войти">
+					
 				</form>
+			</div>
 			</body>
 		</html>		
 		""")
@@ -28,10 +70,15 @@ class Sign(webapp.RequestHandler):
 	def post(self):
 		
 		wks=db.GqlQuery("SELECT * FROM Worker WHERE email=:email",email=self.request.get('email'))
-		wk=wks[0]
-		
-		pswd=self.request.get('passwd')
-		if (pswd==wk.passwd):
-			self.response.headers.add_header('Set-Cookie',"session=%s; path=/; expires=Sunday, 30-Apr-2011 23:59:59 GMT;"%wk.key())
-			self.redirect('/')
+		if(wks.count()>0):
+			wk=wks[0]		
+			pswd=self.request.get('passwd')
+			if (pswd==wk.passwd):
+				self.response.headers.add_header('Set-Cookie',"session=%s; path=/; expires=Mon, 18 Apr 2011 11:48:41 GMT;"%wk.key())
+				
 
+		self.redirect('/')
+class Logout(webapp.RequestHandler):
+	def get(self):
+		self.response.headers.add_header('Set-Cookie',"session=; path=/;")
+		self.redirect('/')

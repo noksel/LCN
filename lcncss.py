@@ -19,13 +19,13 @@ class Mtempl:
 				<div id="mddle">	
 			"""
 	end=u"""</div></div></div>"""
-def bg(name):
+def beg(name):
 		b1=u"""
 			<div id="tble">
 			<div id="caption">Заголовок</div>
 			<div class="tr">
 				<div id="lft">"""
-		b2=u"""<br><hr>
+		b2=u"""<input type="button" value="Выйти" onclick="javascript: window.location.href='/logout'"><br/><hr>
 				<a href="/workers">Сотрудники</a><br/><hr>
 				<a href="/equipment">Оборудование</a><br/><hr>
 				<a href="/planeq">План закупок по оборудованию</a><br/><hr>
@@ -38,7 +38,7 @@ def bg(name):
 				</div>	
 				<div id="mddle">	
 			"""
-		return "".join([b1,name,b2])
+		return "%s%s%s"%(b1,name,b2)
 	
 style=u"""<link rel="stylesheet" type="text/css" href="/css/lcn.css"/>"""
 

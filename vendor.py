@@ -1,5 +1,6 @@
 # -*- coding:UTF-8 -*-
 import lcncss
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -8,6 +9,13 @@ class Vendor(db.Model):
 	
 class VendorPage(webapp.RequestHandler):
 	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+				
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
 		self.response.out.write(u"""
 		<html>
 		<head>
@@ -17,7 +25,7 @@ class VendorPage(webapp.RequestHandler):
 		%s
 		<b>Поставщики:</b>
 		<table>
-		"""%(lcncss.style,lcncss.Mtempl.beg))
+		"""%(lcncss.style,lcncss.beg(wk.surname)))
 		vds=db.GqlQuery('SELECT * FROM Vendor')			
 		for vd in vds:
 			self.response.out.write("<tr><td>%s</td></tr>"% (vd.name))
@@ -34,6 +42,12 @@ class VendorPage(webapp.RequestHandler):
 		
 class VendorAdd(webapp.RequestHandler):
 	def post(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')		
+	
+	def doSmf(self):	
 		vd=Vendor()
 		vd.name=self.request.get('name')
 		vd.put()

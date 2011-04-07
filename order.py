@@ -5,6 +5,7 @@ import workers
 import payer
 import tpay
 import lcncss
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -29,16 +30,21 @@ class Endorsment(db.Model):
 	
 class OrderPage(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write("""
-		<html><head>%s</head><body>%s
-			"""%(lcncss.style,lcncss.Mtempl.beg))
+			if (verify.verifyUsr(self)):
+				self.doSmf()
+			else:
+				self.redirect('/')
+	
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
+		self.response.out.write("""<html><head>%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
 			
 		ords=db.GqlQuery('SELECT * FROM Order')
 		ends=db.GqlQuery("SELECT * FROM Endorsment")
 		#db.delete(ords)
 		#db.delete(ends)
 		
-		self.response.out.write(u"""<form metond="GET" action="/asdas"><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
 		
 	
 		for _ord in ords:
@@ -64,10 +70,15 @@ class OrderPage(webapp.RequestHandler):
 				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
 			
 			self.response.out.write("</table></td></tr>")
-		self.response.out.write("</table></form>%s</body></html>"%lcncss.Mtempl.end)
+		self.response.out.write("</table>%s</body></html>"%lcncss.Mtempl.end)
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+	def doSmf(self):	
 		_ord=Order()
 		_ord.equipment=db.get(self.request.get('eqipm'))
 		_ord.quantity=int(self.request.get('quant'))
@@ -95,7 +106,12 @@ class OrdAdd(webapp.RequestHandler):
 		self.redirect('/order')
 class OrdUpdate(webapp.RequestHandler):
 	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
 	
+	def doSmf(self):
 		_ord=db.get(self.request.get('ord'))
 		_ord.quantity=int(self.request.get('quant'))
 		_ord.price=float(self.request.get('price'))

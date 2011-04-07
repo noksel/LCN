@@ -2,6 +2,7 @@
 
 import lcncss
 import random
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -19,18 +20,26 @@ class ResetPasswd(db.Model):
 	
 class WorkersPage(webapp.RequestHandler):
  def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+			 
+ def doSmf(self):
+ 	wk= db.get(self.request.str_cookies['session'])
 	self.response.out.write("""<html>
 														%s
-														<body>%s"""%(lcncss.style,lcncss.Mtempl.beg))
+														<body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
 	wks=db.GqlQuery('SELECT * FROM Worker')
 	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
 	self.response.out.write('<table border="1">')
 	self.response.out.write(u"""
 														<tr><th>Фамилия</th><th>Имя</th><th>Отчество</th><th>E-mail</th><th>Телефон</th> </tr>
 														""")
-
+ 
 	for wk in wks:
-		self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td></tr>"%(wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.passwd))	
+		resetPswdButton =u"<input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\>"%(wk.key())
+		self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>"%(wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.passwd,resetPswdButton))	
 			
 	self.response.out.write('</table></br>')
 
@@ -62,6 +71,12 @@ class WorkersPage(webapp.RequestHandler):
 
 class AddWorker(webapp.RequestHandler):
 	def post(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+	
+	def doSmf(self):
 		wk=Worker()
 		wk.surname=self.request.get('surname')
 		wk.patronymic=self.request.get('patronymic')
@@ -79,9 +94,8 @@ class SetPasswd(webapp.RequestHandler):
 		wk=rst.worker
 		wk.passwd=self.request.get('passwd')
 		wk.put()
-		self.response.out.write("%s %s %s"%(rst.rkey,rst.worker.surname,rst.worker.passwd))
 		db.delete(rst)
-		#self.redirect('/')
+		self.redirect('/')
 		
 class SetPasswdPg(webapp.RequestHandler):
 	def get(self):
@@ -140,6 +154,12 @@ class SetPasswdPg(webapp.RequestHandler):
 		
 class GenReset(webapp.RequestHandler):
 	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+	
+	def doSmf(self):
 		wk=db.get(self.request.get('wk'))		
 		rs=ResetPasswd(rkey=str(random.randrange(1000)), worker=wk)
 		self.response.out.write("<html><body><a href=\"/worker/set-passwd-pg?rkey=%s\">/worker/set-passwd-pg?rkey=%s<a></body></html>"%(rs.rkey,rs.rkey))

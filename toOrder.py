@@ -1,14 +1,22 @@
 # -*-  coding: UTF-8 -*-
 import lcncss
 import my_js
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
 class ToOrderPage(webapp.RequestHandler):
 	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+				
+	def doSmf(self):
 		pl=db.get(self.request.get('kplan'))
+		wk= db.get(self.request.str_cookies['session'])
 		self.response.out.write(u"""<html><head>%s<script>equipment='%s';	%s
-		</script></head><body>%s <b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.getChList,lcncss.Mtempl.beg))
+		</script></head><body>%s <b>Создание заявки</b><table>"""%(lcncss.style,pl.equipment.key(),my_js.getChList,lcncss.beg(wk.surname)))
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%pl.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%pl.quantity)
 		

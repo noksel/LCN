@@ -1,6 +1,7 @@
 #-*- coding: UTF-8 -*-
 
 import lcncss
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -9,7 +10,14 @@ class TypePayment(db.Model):
 	
 class TypePayPg(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(u"""<html><head>%s</head><body>%sТипы оплаты: </br></br> <table border="1">"""%(lcncss.style,lcncss.Mtempl.beg))
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+	
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
+		self.response.out.write(u"""<html><head>%s</head><body>%sТипы оплаты: </br></br> <table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		for tp in tps:
 			self.response.out.write("<tr><td>%s</td></tr>"%(tp.name))
@@ -23,6 +31,12 @@ class TypePayPg(webapp.RequestHandler):
 		
 class TypePaymntAdd(webapp.RequestHandler):
 	def post(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+				
+	def doSmf(self):
 		tp=TypePayment(name=self.request.get('name'))
 		tp.put()
 		self.redirect("/tpaymnt")

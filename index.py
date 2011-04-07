@@ -22,10 +22,10 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-	
-	if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
-			lwk= db.get(self.request.str_cookies['session'])			
-	self.response.out.write(u"""
+		if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
+			try:
+				lwk= db.get(self.request.str_cookies['session'])
+				self.response.out.write(u"""
 		<html>
 		<head>
 			%s
@@ -34,12 +34,19 @@ class MainPage(webapp.RequestHandler):
 			%s
 		Объявления:%s
 		</body>
-		</html>
+		</html>		
+		"""%(lcncss.style,lcncss.beg(lwk.surname),lcncss.Mtempl.end))
+			except :
+				self.redirect('/login')
+			
 
-		"""%(lcncss.style,lcncss.bg(lwk.surname),lcncss.Mtempl.end))
+
+		else:
+			self.redirect('/login')
 appl = webapp.WSGIApplication([('/login', sign.Login)
 															,('/', MainPage)
 															,('/sign',sign.Sign)
+															,('/logout',sign.Logout)
 															,('/workers',workers.WorkersPage)
 															,('/workers/add',workers.AddWorker)
 															,('/worker/set-passwd-pg',workers.SetPasswdPg)
@@ -65,9 +72,6 @@ appl = webapp.WSGIApplication([('/login', sign.Login)
 
 
 def init():
-
-	
-	
 	eqp=equipment.Equipment(name=u'Пины HPA-OJ,SPR-OW-1')
 	eqp.put()
 	eqm=equipment.Equipment(name=u'Микросхемы')

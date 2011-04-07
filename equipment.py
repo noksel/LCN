@@ -1,6 +1,7 @@
 # -*- coding: UTF-8-*-
 import cgi
 import lcncss
+import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -9,8 +10,15 @@ class Equipment(db.Model):
 	
 	
 class EqPage(webapp.RequestHandler):
-	def get(self):		
-		self.response.out.write(u"""<html><head>%s</head><body>%s Список оборудования:</br></br> <table border="1">"""%(lcncss.style,lcncss.Mtempl.beg))
+	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')
+	
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
+		self.response.out.write(u"""<html><head>%s</head><body>%s Список оборудования:</br></br> <table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
@@ -23,8 +31,17 @@ class EqPage(webapp.RequestHandler):
 		<input name="name" size="50"><input type="submit" value="Добавить">
 		</form>		
 		%s</body></html>"""%lcncss.Mtempl.end)
+
+
+
 class AddEq(webapp.RequestHandler):
-	def post(self):
+	def post(self):		
+			if (verify.verifyUsr(self)):
+				self.doSmf()
+			else:
+				self.redirect('/')
+						
+	def doSmf(self):
 		eq=Equipment()
 		eq.name=self.request.get('name')
 		eq.put()
