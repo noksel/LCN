@@ -5,12 +5,13 @@
 		
 			#tble
 			{
+				width: 100%;
 				display:table;
 				height:87%;				
 			}
 			#caption
 			{
-				min-width: 100%;
+				
 				height: 15%;
 				background-color:#4F81BD;
 				display: table-caption;
