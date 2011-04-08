@@ -28,8 +28,12 @@ class PlanEqPage(webapp.RequestHandler):
 		peqs=db.GqlQuery('SELECT * FROM PlanEq')	
 		self.response.out.write(u"""<table border="1">
 														<tr><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
-		for peq in peqs:			
-			self.response.out.write(u"<tr> <td>%s<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</></td> <td>%s</td><td>%s</td>" % (peq.equipment.name,peq.key(),peq.quantity,peq.comment))
+		for peq in peqs:
+			crOrd=""
+			if (unicode(wk.key()) in peq.resp ):
+			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()			
+			
+			self.response.out.write(u"<tr> <td>%s %s</td> <td>%s</td><td>%s</td>" % (peq.equipment.name,crOrd,peq.quantity,peq.comment))
 			mstr=str()
 			self.response.out.write("<td>")
 			mstr=" ".join([db.get(wrkey).surname for wrkey in peq.resp])			
