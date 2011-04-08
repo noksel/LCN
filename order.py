@@ -35,30 +35,38 @@ class OrderPage(webapp.RequestHandler):
 			else:
 				self.redirect('/')
 	
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write("""<html><head>%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+	def getMyRough(self,wk):
+		
+		ords=db.GqlQuery('SELECT * FROM Order WHERE status=0')
 			
-		ords=db.GqlQuery('SELECT * FROM Order')
-		ends=db.GqlQuery("SELECT * FROM Endorsment")
-		#db.delete(ords)
-		#db.delete(ends)
-		
-		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Статус</th><th>Одобрено</th></tr>""")
-		
-	
 		for _ord in ords:
 			mstr=str()
 			mstr=" ".join([db.get(wrkey).surname for wrkey in _ord.resp])	
 				
-			if(_ord.status==0):
-				st=u'Черновик'
-			elif (_ord.status==1):
-				st=u'На одобрение'
-			elif (_ord.status==2):
-				st=u'Выполнено'
-			self.response.out.write("<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,mstr,st))
+			self.response.out.write(u"<tr>")
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,mstr))
+			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+			self.response.out.write("<td><table>")
+			
+			for e in ends:
+				mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" DISABLED >"%(e.key())
+				if(e.submit==True):
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
+					
+				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
+			
+			self.response.out.write("</table></td></tr>")
+		
+	def getMyOnSubm(self,sb):
+		
+		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter",submiter=sb)
+		for _end_sb in ends_sb:
+			_ord=_end_sb.order
+			mstr=str()
+			mstr=" ".join([db.get(wrkey).surname for wrkey in _ord.resp])	
+				
+			self.response.out.write(u"<tr>")
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,mstr))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -69,8 +77,31 @@ class OrderPage(webapp.RequestHandler):
 					
 				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
 			
-			self.response.out.write("</table></td></tr>")
-		self.response.out.write("</table>%s</body></html>"%lcncss.Mtempl.end)
+			self.response.out.write("</table></td></tr>")		
+		
+		
+
+	def getMySubm(self,wk):
+		pass
+	
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
+		self.response.out.write("""<html><head>%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+			
+		#ords=db.GqlQuery('SELECT * FROM Order')
+		#ends=db.GqlQuery("SELECT * FROM Endorsment")
+		#db.delete(ords)
+		#db.delete(ends)
+		
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
+		<tr><td>Черновики</td></tr>""")
+		
+		self.getMyRough(wk)
+		self.response.out.write(u"<tr><td>На одобрении</td></tr>")
+		self.getMyOnSubm(wk)
+		
+		self.response.out.write("</table>")
+		self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):

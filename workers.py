@@ -103,7 +103,6 @@ class SetPasswdPg(webapp.RequestHandler):
 		key=self.request.get('rkey')
 		rsts = db.GqlQuery("SELECT * FROM ResetPasswd WHERE rkey=:rkey",rkey=key)
 		rst=rsts[0]
-		wk= db.get(self.request.str_cookies['session'])
 		self.response.out.write(u"""<html><head>%s <script type="text/javascript">
 		function setpass()
 		{
@@ -148,7 +147,7 @@ class SetPasswdPg(webapp.RequestHandler):
 			}
 		}
 				
-		</script></head> <body>%s"""%(lcncss.style,key,lcncss.beg(wk.surname)))	
+		</script></head> <body>%s"""%(lcncss.style,key,lcncss.beg("")))	
 		self.response.out.write(u"""<b>Ввод нового пароля:</b> %s<br/><table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
 		self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf"><br/></div>		
 		 <input type="button" onclick="setpass()" value="Изменить">""")
