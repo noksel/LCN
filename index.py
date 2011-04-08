@@ -139,11 +139,11 @@ def init():
 
 	
 	
-	pe= PlanEq.PlanEq(equipment=eqp,quantity=1,comment=u'Набор',resp=["%s"%wkk.key()])
+	pe= PlanEq.PlanEq(equipment=eqp,quantity=1,comment=u'Набор',respWk=wkk)
 	pe.put()
-	pe= PlanEq.PlanEq(equipment=eqm,quantity=1,comment=u'Набор',resp =["%s"%wkb.key()])
+	pe= PlanEq.PlanEq(equipment=eqm,quantity=1,comment=u'Набор',respWk =wkb)
 	pe.put()
-	pe= PlanEq.PlanEq(equipment=eql,quantity=1,comment=u'Набор',resp =["%s"%wka.key(),"%s"%wksh.key()])
+	pe= PlanEq.PlanEq(equipment=eql,quantity=1,comment=u'Набор',respWk =wka)
 	pe.put()
 	
 	

@@ -14,12 +14,12 @@ class Order(db.Model):
 	quantity=db.IntegerProperty()
 	price=db.FloatProperty()
 	vendor=db.ReferenceProperty(vendor.Vendor)
-	status=db.IntegerProperty()
+	status=db.IntegerProperty() # 0-черновик, 1-на одобрении, 2-одобрен, 3-исполнен.
 	dateVend=db.StringProperty()
 	payer=db.ReferenceProperty(payer.Payer)
 	typePayment=db.ReferenceProperty(tpay.TypePayment)
 	tz=db.StringProperty(multiline=True)
-	resp=db.ListProperty(str)
+	respWk=db.ReferenceProperty(workers.Worker)
 	
 class Endorsment(db.Model):
 	order=db.ReferenceProperty(Order)
@@ -37,14 +37,11 @@ class OrderPage(webapp.RequestHandler):
 	
 	def getMyRough(self,wk):
 		
-		ords=db.GqlQuery('SELECT * FROM Order WHERE status=0')
+		ords=db.GqlQuery('SELECT * FROM Order WHERE status=0 AND respWk=:respWk',respWk=wk)
 			
 		for _ord in ords:
-			mstr=str()
-			mstr=" ".join([db.get(wrkey).surname for wrkey in _ord.resp])	
-				
 			self.response.out.write(u"<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,mstr))
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.surname))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -60,24 +57,23 @@ class OrderPage(webapp.RequestHandler):
 	def getMyOnSubm(self,sb):
 		
 		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter",submiter=sb)
+		
 		for _end_sb in ends_sb:
 			_ord=_end_sb.order
-			mstr=str()
-			mstr=" ".join([db.get(wrkey).surname for wrkey in _ord.resp])	
-				
-			self.response.out.write(u"<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,mstr))
-			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
-			self.response.out.write("<td><table>")
+			if (_ord.status==1):
+				self.response.out.write(u"<tr>")
+				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.status,_ord.respWk.surname))
+				ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+				self.response.out.write("<td><table>")
 			
-			for e in ends:
-				mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key(),e.key())
-				if(e.submit==True):
-					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
+				for e in ends:
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key(),e.key())
+					if(e.submit==True):
+						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
 					
-				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
+					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
 			
-			self.response.out.write("</table></td></tr>")		
+				self.response.out.write("</table></td></tr>")		
 		
 		
 
@@ -120,7 +116,7 @@ class OrdAdd(webapp.RequestHandler):
 		_ord.payer=db.get(self.request.get('payer'))
 		_ord.typePayment=db.get(self.request.get('tpay'))	
 		_ord.tz=self.request.get('tz')
-		_ord.resp=self.request.get('resp').split(':')
+		_ord.respWk=db.get(self.request.get('resp'))
 		_ord.put()
 
 		
@@ -152,7 +148,7 @@ class OrdUpdate(webapp.RequestHandler):
 		_ord.payer=db.get(self.request.get('payer'))
 		_ord.typePayment=db.get(self.request.get('tpay'))	
 		_ord.tz=self.request.get('tz')
-		_ord.resp=self.request.get('resp').split(':')
+		_ord.respWk=db.get(self.request.get('resp'))
 		_ord.put()
 
 				

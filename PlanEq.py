@@ -11,7 +11,7 @@ class PlanEq(db.Model):
 	equipment=db.ReferenceProperty(equipment.Equipment)
 	quantity=db.IntegerProperty()
 	comment=db.StringProperty()
-	resp=db.ListProperty(str)
+	respWk=db.ReferenceProperty(workers.Worker)
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
@@ -30,14 +30,12 @@ class PlanEqPage(webapp.RequestHandler):
 														<tr><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
 		for peq in peqs:
 			crOrd=""
-			if (unicode(wk.key()) in peq.resp ):
+			if (wk.key()==peq.respWk.key() ):
 			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()			
 			
 			self.response.out.write(u"<tr> <td>%s %s</td> <td>%s</td><td>%s</td>" % (peq.equipment.name,crOrd,peq.quantity,peq.comment))
-			mstr=str()
-			self.response.out.write("<td>")
-			mstr=" ".join([db.get(wrkey).surname for wrkey in peq.resp])			
-			self.response.out.write("%s</td></tr>" % (mstr))							
+
+			self.response.out.write("<td>%s</td></tr>" % (peq.respWk.surname))							
 		
 		self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
 		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
@@ -60,12 +58,13 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	eqs=db.GqlQuery('SELECT * FROM Equipment')
 	for eq in eqs:
 		self.response.out.write(u"	<OPTION VALUE=\"%s\">%s"%(eq.key(),eq.name))
-	self.response.out.write(u'</SELECT></br>Ответственные:</br>')
+	self.response.out.write(u'</SELECT></br>Ответственный:')
 	
-	
+	self.response.out.write(u'<SELECT name=\"resp\">')
 	wks=db.GqlQuery('SELECT * FROM Worker')
 	for wk in wks:
-		self.response.out.write(u"<input type=\"checkbox\" name=\"worker\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+		self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+	self.response.out.write(u'</SELECT><br/>')
 	
 	self.response.out.write(u"""
 		Количество:<input name="quant"></br>
@@ -78,7 +77,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		str=str+'&quant='+inp[0].value;	
 		inp=document.getElementsByName('comment');
 		str=str+'&comment='+inp[0].value+'&resp=';		
-		str=str+getList('worker');
+		str=str+document.getElementsByName('resp')[0].value;
 		window.location.href=str})()">
 		""")
 
@@ -99,7 +98,7 @@ class PEAdd(webapp.RequestHandler):
 		pe.comment=self.request.get('comment')
 		
 		
-		pe.resp=self.request.get('resp').split(':')
+		pe.respWk=db.get(self.request.get('resp'))
 	
 		pe.put()
 		self.redirect('/planeq')

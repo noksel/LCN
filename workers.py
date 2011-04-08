@@ -39,7 +39,7 @@ class WorkersPage(webapp.RequestHandler):
  
 	for wk in wks:
 		resetPswdButton =u"<input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\>"%(wk.key())
-		self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>"%(wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.passwd,resetPswdButton))	
+		self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>"%(wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.key(),resetPswdButton))	
 			
 	self.response.out.write('</table></br>')
 
