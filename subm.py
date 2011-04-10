@@ -16,8 +16,21 @@ class submEnd(webapp.RequestHandler):
 			self.redirect('/order')
 					
 	def doSmf(self):
+		
 		endrsmnt=db.get(self.request.get('endsmnt'))
-		endrsmnt.submit=True
-		endrsmnt.put()
+		if (endrsmnt.order.status==1):
+			endrsmnt.submit=True
+			endrsmnt.put()
+			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=endrsmnt.order)
+			allsb=True
+			for end in ends:
+				if (end.submit==False):
+					allsb=False
+					
+			if(allsb==True):
+				_ord=endrsmnt.order
+				_ord.status=2
+				_ord.put()
+				
 		self.redirect('/order')
 		

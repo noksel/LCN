@@ -27,17 +27,16 @@ class Endorsment(db.Model):
 	submit=db.BooleanProperty()
 	comment=db.StringProperty()
 	
-	
 class OrderPage(webapp.RequestHandler):
 	def get(self):
 			if (verify.verifyUsr(self)):
 				self.doSmf()
 			else:
 				self.redirect('/')
-	
-	def getMyRough(self,wk):
+	## подумать. сделать. "одобрить"-мне надо одобрить. "мои заявки на одобрении"-я подал на одобрение
+	def getMyRough(self,wk,stat):
 		
-		ords=db.GqlQuery('SELECT * FROM Order WHERE status=0 AND respWk=:respWk',respWk=wk)
+		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
 			
 		for _ord in ords:
 			self.response.out.write(u"<tr>")
@@ -54,9 +53,8 @@ class OrderPage(webapp.RequestHandler):
 			
 			self.response.out.write("</table></td></tr>")
 		
-	def getMyOnSubm(self,sb):
-		
-		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter",submiter=sb)
+	def getToSubm(self,sb,subm):
+		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter AND submit=:submit",submiter=sb,submit=subm)
 		
 		for _end_sb in ends_sb:
 			_ord=_end_sb.order
@@ -74,11 +72,6 @@ class OrderPage(webapp.RequestHandler):
 					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
 			
 				self.response.out.write("</table></td></tr>")		
-		
-		
-
-	def getMySubm(self,wk):
-		pass
 	
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
@@ -89,12 +82,25 @@ class OrderPage(webapp.RequestHandler):
 		#db.delete(ords)
 		#db.delete(ends)
 		
-		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
+		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
 		<tr><td>Черновики</td></tr>""")
 		
-		self.getMyRough(wk)
-		self.response.out.write(u"<tr><td>На одобрении</td></tr>")
-		self.getMyOnSubm(wk)
+		self.getMyRough(wk,0)
+		
+		self.response.out.write(u"<tr><td>На одобрении:</td></tr>")
+		self.getMyRough(wk,1)
+		
+		self.response.out.write(u"<tr><td>Одобренные:</td></tr>")
+		self.getMyRough(wk,2)		
+		self.response.out.write("</table>")
+		
+		self.response.out.write(u"""<br/><b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
+		""")
+		
+		self.response.out.write(u"<tr><td>Одобрить:</td></tr>")
+		self.getToSubm(wk, False)
+		self.response.out.write(u"<tr><td>Одобренные мной:</td></tr>")
+		self.getToSubm(wk, True)				
 		
 		self.response.out.write("</table>")
 		self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)

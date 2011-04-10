@@ -55,13 +55,13 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
 	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(wk.surname)))
 	
-	eqs=db.GqlQuery('SELECT * FROM Equipment')
+	eqs=db.GqlQuery('SELECT * FROM Equipment ORDER BY name')
 	for eq in eqs:
 		self.response.out.write(u"	<OPTION VALUE=\"%s\">%s"%(eq.key(),eq.name))
 	self.response.out.write(u'</SELECT></br>Ответственный:')
 	
 	self.response.out.write(u'<SELECT name=\"resp\">')
-	wks=db.GqlQuery('SELECT * FROM Worker')
+	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	for wk in wks:
 		self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 	self.response.out.write(u'</SELECT><br/>')

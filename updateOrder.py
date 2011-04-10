@@ -44,7 +44,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		elif (_ord.status==2):
 			self.response.out.write(u"""
 				<OPTION value=\"0\">Черновик
-				<OPTION SELECTED value=\"2\">Выполнена</SELECT></td></tr>""")		
+				<OPTION SELECTED value=\"2\">Одобрена</SELECT></td></tr>""")		
 				
 		self.response.out.write(u"""<tr><td>Дата поставки:</td> <td><input name=\"dateVend\" value=\"%s\"></td></tr>"""%_ord.dateVend)
 		
@@ -74,8 +74,11 @@ class UpdateOrderPg(webapp.RequestHandler):
 		self.response.out.write(u'Утверждают:</br>')
 	
 	
-		wks=db.GqlQuery('SELECT * FROM Worker')
+		wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 		ends=db.GqlQuery('SELECT * FROM Endorsment WHERE order=:order',order=_ord)
+	
+		
+		
 		for wk in wks:
 			tmp=False
 			for end in ends:
@@ -83,9 +86,11 @@ class UpdateOrderPg(webapp.RequestHandler):
 					tmp=True
 					break
 			if(tmp==True):
-				self.response.out.write(u"<input CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))		
+				if(wk.key()!=_ord.respWk.key()):
+					self.response.out.write(u"<input CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))		
 			else:
-				self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+				if(wk.key()!=_ord.respWk.key()):
+					self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 					
 		# количество обновляется. вернуть в план??
 		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(_ord.key(),_ord.respWk.key(),lcncss.Mtempl.end))

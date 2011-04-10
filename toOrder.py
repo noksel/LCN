@@ -58,8 +58,9 @@ class ToOrderPage(webapp.RequestHandler):
 		self.response.out.write(u'Утверждают:</br>')
 	
 	
-		wks=db.GqlQuery('SELECT * FROM Worker')
-		for wk in wks:
-			self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+		wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
+		for _wk in wks:
+			if(_wk.key()!=pl.respWk.key()):
+				self.response.out.write(u"<input type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
 		
 		self.response.out.write(u"""<input type="button" value="Принять" onclick="javascript:window.location.href='/order/add?eqipm='+equipment+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(pl.respWk.key(), lcncss.Mtempl.end))
