@@ -82,7 +82,7 @@ class OrderPage(webapp.RequestHandler):
 		#db.delete(ords)
 		#db.delete(ends)
 		
-		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
+		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
 		<tr><td>Черновики</td></tr>""")
 		
 		self.getMyRough(wk,0)
@@ -94,7 +94,7 @@ class OrderPage(webapp.RequestHandler):
 		self.getMyRough(wk,2)		
 		self.response.out.write("</table>")
 		
-		self.response.out.write(u"""<br/><b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
+		self.response.out.write(u"""<br/><b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
 		""")
 		
 		self.response.out.write(u"<tr><td>Одобрить:</td></tr>")
@@ -115,7 +115,7 @@ class OrdAdd(webapp.RequestHandler):
 		_ord=Order()
 		_ord.equipment=db.get(self.request.get('eqipm'))
 		_ord.quantity=int(self.request.get('quant'))
-		_ord.price=float(self.request.get('price'))
+		_ord.price=float(self.request.get('price').replace(',','.'))
 		_ord.vendor=db.get(self.request.get('vendor'))
 		_ord.status=int(self.request.get('status'))
 		_ord.dateVend=self.request.get('date')
@@ -147,7 +147,7 @@ class OrdUpdate(webapp.RequestHandler):
 	def doSmf(self):
 		_ord=db.get(self.request.get('ord'))
 		_ord.quantity=int(self.request.get('quant'))
-		_ord.price=float(self.request.get('price'))
+		_ord.price=float(self.request.get('price').replace(',','.'))
 		_ord.vendor=db.get(self.request.get('vendor'))
 		_ord.status=int(self.request.get('status'))
 		_ord.dateVend=self.request.get('date')

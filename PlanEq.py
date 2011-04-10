@@ -103,3 +103,14 @@ class PEAdd(webapp.RequestHandler):
 		pe.put()
 		self.redirect('/planeq')
 		
+class PEDel(webapp.RequestHandler):
+	def post(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+			
+	def doSmf(self):
+		pe=db.get(self.request.get('pkey'))
+		db.delete(pe)
+		

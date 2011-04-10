@@ -20,7 +20,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%_ord.quantity)
 		
-		self.response.out.write(u"<tr><td>Цена:</td> <td><input name=\"price\" value=\"%s\"></td></tr>"%_ord.price)
+		self.response.out.write(u"<tr><td>Цена(руб.):</td> <td><input name=\"price\" value=\"%s\"></td></tr>"%_ord.price)
 
 		self.response.out.write(u"<tr><td>Поставщик:</td> <td><SELECT name=\"vendor\">")
 		vds =db.GqlQuery("SELECT * FROM Vendor")
