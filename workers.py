@@ -28,7 +28,7 @@ class WorkersPage(webapp.RequestHandler):
  def doSmf(self):
  	wk= db.get(self.request.str_cookies['session'])
 	self.response.out.write("""<html>
-														%s
+														<head>%s</head>
 														<body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
 	wks=db.GqlQuery('SELECT * FROM Worker')
 	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
@@ -38,8 +38,8 @@ class WorkersPage(webapp.RequestHandler):
 														""")
  
 	for wk in wks:
-		resetPswdButton =u"<input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\>"%(wk.key())
-		self.response.out.write("<tr><td>%s</td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td></tr>"%(wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.key(),resetPswdButton))	
+		
+		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td></tr>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.passwd))	
 			
 	self.response.out.write('</table></br>')
 
@@ -86,6 +86,84 @@ class AddWorker(webapp.RequestHandler):
 		wk.put()
 		self.redirect('/workers')
 
+class UpdtWorker(webapp.RequestHandler):
+	def post(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+	
+	def doSmf(self):
+		wk=db.get(self.request.get('wkey'))
+		wk.surname=self.request.get('surname')
+		wk.patronymic=self.request.get('patronymic')
+		wk.name=self.request.get('name')
+		wk.email=self.request.get('email')
+		wk.phone=self.request.get('phone')
+		wk.put()
+		self.redirect('/workers')
+
+
+class WorkerPg(webapp.RequestHandler):
+	def get(self):			
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/')	
+	def doSmf(self):
+		wk= db.get(self.request.str_cookies['session'])
+		_wk=db.get(self.request.get('wkey'))
+		self.response.out.write("""<html>
+														<head>
+														%s
+														<script src="/script/jquery-1.5.2.min.js"></script>
+														<script type="text/javascript">
+															$(document).ready( function() {
+															
+															
+															$("#sbm").click(function() { 
+															
+															var frm = $('<form method="post" action="/workers/worker/update">'
+					+'<input name="wkey" value="%s">'
+					+'<input name="surname" value="'+$('#surname')[0].value+'">'
+					+'<input name="name" value="'+$('#name')[0].value+'">'
+					+'<input name="patronymic" value="'+ $('#patronymic')[0].value +'">'
+					+'<input name="email" value="'+$('#email')[0].value+'">'
+					+'<input name="phone" value="'+$('#phone')[0].value +'"></form>');
+					frm.submit(); } )
+															
+															});
+														</script>
+														</head>
+														<body>%s"""%(lcncss.style,_wk.key(),lcncss.beg(wk.surname)))
+		
+		self.response.out.write(u"Изменение данных сотрудника<br/>")
+		
+		self.response.out.write(u"""
+			<form method="post" action="/workers/add">				
+				<div>
+				<div style="float:left; height:100%; line-height:26px;">
+				Фамилия: </br>
+				Имя:</br>
+				Отчество:</br>
+				E-mail:</br>
+				Телефон:</br>
+				</div>""")
+		self.response.out.write(u"""<div>
+					<input id="surname" name="surname" value="%s"></br>
+					<input id="name" name="name" value="%s"></br>
+					<input id="patronymic" name="patronymic" value="%s"></br>
+					<input id="email" name="email" value="%s"></br>
+					<input id="phone" name="phone" value="%s"></br>					
+				</div>"""%(_wk.surname,_wk.name,_wk.patronymic,_wk.email,_wk.phone))
+		self.response.out.write(u"<input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\>"%(_wk.key()))		
+		self.response.out.write(u"""</div>
+				<input id="sbm" type="button" value="Принять изменения">""")		
+	
+		self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
+	
+	
+	
 class SetPasswd(webapp.RequestHandler):
 	def post(self):
 		key=self.request.get('rkey')
