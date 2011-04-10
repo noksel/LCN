@@ -58,9 +58,9 @@ class OrderPage(webapp.RequestHandler):
 		
 		for _end_sb in ends_sb:
 			_ord=_end_sb.order
-			if (_ord.status==1):
+			if (_ord.status==1 or _ord.status==2):
 				self.response.out.write(u"<tr>")
-				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.status,_ord.respWk.surname))
+				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.surname))
 				ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 				self.response.out.write("<td><table>")
 			

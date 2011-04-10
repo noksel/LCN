@@ -30,7 +30,7 @@ class WorkersPage(webapp.RequestHandler):
 	self.response.out.write("""<html>
 														<head>%s</head>
 														<body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
-	wks=db.GqlQuery('SELECT * FROM Worker')
+	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
 	self.response.out.write('<table border="1">')
 	self.response.out.write(u"""
