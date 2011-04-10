@@ -51,6 +51,20 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	wk= db.get(self.request.str_cookies['session']) 
 	self.response.out.write(u"""<html><head>%s
 	<script src="/script/my.js"></script>
+	<script src="/script/jquery-1.5.2.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready( function()
+	{
+		$('select[name=eqid]').change(function()
+			{
+				if($('select[name=eqid]')[0].value=='none')
+					{$('#eqname').attr('disabled',false);}
+				else {$('#eqname').attr('disabled',true);}
+			}
+		)
+	}	
+	);
+	</script>
 	</head><body>%s
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
 	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(wk.surname)))
@@ -58,8 +72,13 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	eqs=db.GqlQuery('SELECT * FROM Equipment ORDER BY name')
 	for eq in eqs:
 		self.response.out.write(u"	<OPTION VALUE=\"%s\">%s"%(eq.key(),eq.name))
-	self.response.out.write(u'</SELECT></br>Ответственный:')
 	
+	self.response.out.write(u"	<OPTION VALUE=\"none\">----Ввести своё----")
+	self.response.out.write(u'</SELECT>')
+	
+	self.response.out.write(u'<br/><div style="width:110px;float:left;">&nbsp</div><input id="eqname" name="eqname" style="width:200px;" DISABLED>')	
+	
+	self.response.out.write(u'</br>Ответственный:')	
 	self.response.out.write(u'<SELECT name=\"resp\">')
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	for wk in wks:
@@ -70,9 +89,19 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		Количество:<input name="quant"></br>
 		Коментарий:<input name="comment"></br>
 		<input value="Добавить" type="button" onclick="javascript:(function(){
-		sl=document.getElementsByName('eqid');
-		str='/planeq/add?eqid=';
-		str=str+sl[0].value;	
+		str='/planeq/add?';
+		
+		if($('select[name=eqid]')[0].value=='none')
+			{
+				str=str+'eqname='+$('#eqname')[0].value;
+			}
+		else
+		{
+			sl=document.getElementsByName('eqid');
+			str=str+'eqid='+sl[0].value;	
+		}
+			
+		
 		inp=document.getElementsByName('quant');
 		str=str+'&quant='+inp[0].value;	
 		inp=document.getElementsByName('comment');
@@ -92,8 +121,17 @@ class PEAdd(webapp.RequestHandler):
 		else:
 			self.redirect('/')	
 	def doSmf(self):
+		
 		pe=PlanEq()
-		pe.equipment=db.get(self.request.get('eqid'))
+		
+		if (self.request.get('eqid')!=""):
+			pe.equipment=db.get(self.request.get('eqid'))
+		
+		elif(self.request.get('eqname')!=""):
+			eq=equipment.Equipment()
+			eq.name=self.request.get('eqname')
+			eq.put()
+			pe.equipment=eq		
 		pe.quantity=int(self.request.get('quant'))
 		pe.comment=self.request.get('comment')
 		

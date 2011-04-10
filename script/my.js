@@ -15,3 +15,9 @@ function getList(chName)
 			}
 			return astr;
 		};
+		
+		
+function checkmail(value) {
+reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+if (!value.match(reg)) {alert("Пожалуйста, введите свой настоящий e-mail"); 
+ return false; } return true;}

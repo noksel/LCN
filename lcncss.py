@@ -11,11 +11,10 @@ def beg(name):
 		b2=u"""<input type="button" value="Выйти" onclick="javascript: window.location.href='/logout'"><br/><hr>
 				<a href="/">Главная</a><br/><hr>
 				<a href="/workers">Сотрудники</a><br/><hr>
-				<a href="/equipment">Оборудование</a><br/><hr>
 				<a href="/planeq">План закупок по оборудованию</a><br/><hr>
 				<a href="/order">Заявки</a><hr>
 				<hr>
-			
+				<a href="/equipment">Оборудование</a><br/>
 				<a href="/tpaymnt">Типы платежей</a><br/>
 				<a href="/vendor">Поставщики</a><br/>
 				<a href="/payer">Плательщики</a><br/>

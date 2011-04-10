@@ -117,6 +117,7 @@ class WorkerPg(webapp.RequestHandler):
 														<head>
 														%s
 														<script src="/script/jquery-1.5.2.min.js"></script>
+														<script src="/script/my.js"></script>
 														<script type="text/javascript">
 															$(document).ready( function() {
 															
@@ -130,7 +131,9 @@ class WorkerPg(webapp.RequestHandler):
 					+'<input name="patronymic" value="'+ $('#patronymic')[0].value +'">'
 					+'<input name="email" value="'+$('#email')[0].value+'">'
 					+'<input name="phone" value="'+$('#phone')[0].value +'"></form>');
-					frm.submit(); } )
+					if(checkmail($('#email')[0].value)){frm.submit();}
+					
+					 } )
 															
 															});
 														</script>
