@@ -48,7 +48,7 @@ class WorkersPage(webapp.RequestHandler):
  
 	for wk in wks:
 		
-		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td></tr>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.passwd))	
+		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td></tr>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.key()))	
 			
 	self.response.out.write('</table></br>')
 
@@ -195,9 +195,10 @@ class WorkerPg(webapp.RequestHandler):
 				self.response.out.write(u"<input type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))
 		
 			
-		self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;"><nobr/>""")	
+		self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;">""")	
 		
-		self.response.out.write(u"<span style=\"float:left;width:120px;\">&nbsp</span><input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\></div>"%(_wk.key()))		
+		if(unicode(wk.key()) in verify.getList(['admin'])):
+			self.response.out.write(u"<span style=\"float:left;width:120px;\">&nbsp</span><input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\></div>"%(_wk.key()))		
 	
 		self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
 	
