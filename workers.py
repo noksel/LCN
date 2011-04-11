@@ -3,8 +3,10 @@
 import lcncss
 import random
 import verify
+
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+
 
 class Worker(db.Model):
  surname = db.StringProperty(multiline=False)
@@ -13,6 +15,13 @@ class Worker(db.Model):
  email = db.StringProperty(multiline=False)
  phone=db.StringProperty(multiline=False)
  passwd=db.StringProperty()
+
+class Group(db.Model):
+	name=db.StringProperty()
+	
+class UsrGroup(db.Model):
+	group=db.ReferenceProperty(Group)
+	user=db.ReferenceProperty(Worker)
 
 class ResetPasswd(db.Model):
 	rkey = db.StringProperty()
@@ -101,6 +110,14 @@ class UpdtWorker(webapp.RequestHandler):
 		wk.email=self.request.get('email')
 		wk.phone=self.request.get('phone')
 		wk.put()
+		
+		gr_wk=db.GqlQuery('SELECT * FROM UsrGroup WHERE worker=:worker',worker=wk)
+		db.delete(gr_wk)
+		lst_k_grps=self.request.get('groups').split(':')
+		for kgrp in lst_k_grps:
+			ugrp=UsrGroup(user=wk,group=db.get(kgrp))
+			ugrp.put()
+			
 		self.redirect('/workers')
 
 
@@ -123,14 +140,16 @@ class WorkerPg(webapp.RequestHandler):
 															
 															
 															$("#sbm").click(function() { 
-															
+															var lst = getList('group');
 															var frm = $('<form method="post" action="/workers/worker/update">'
 					+'<input name="wkey" value="%s">'
 					+'<input name="surname" value="'+$('#surname')[0].value+'">'
 					+'<input name="name" value="'+$('#name')[0].value+'">'
 					+'<input name="patronymic" value="'+ $('#patronymic')[0].value +'">'
 					+'<input name="email" value="'+$('#email')[0].value+'">'
-					+'<input name="phone" value="'+$('#phone')[0].value +'"></form>');
+					+'<input name="phone" value="'+$('#phone')[0].value+'">'
+					+'<input name="groups" value="'+lst+'"></form>');
+					
 					if(checkmail($('#email')[0].value)){frm.submit();}
 					
 					 } )
@@ -143,7 +162,7 @@ class WorkerPg(webapp.RequestHandler):
 		self.response.out.write(u"Изменение данных сотрудника<br/>")
 		
 		self.response.out.write(u"""
-			<form method="post" action="/workers/add">				
+							
 				<div>
 				<div style="float:left; height:100%; line-height:26px;">
 				Фамилия: </br>
@@ -159,9 +178,26 @@ class WorkerPg(webapp.RequestHandler):
 					<input id="email" name="email" value="%s"></br>
 					<input id="phone" name="phone" value="%s"></br>					
 				</div>"""%(_wk.surname,_wk.name,_wk.patronymic,_wk.email,_wk.phone))
-		self.response.out.write(u"<input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\>"%(_wk.key()))		
-		self.response.out.write(u"""</div>
-				<input id="sbm" type="button" value="Принять изменения">""")		
+			
+		self.response.out.write(u"Выбрать группы:<br/>")	
+		grps = db.GqlQuery('SELECT * FROM Group ORDER BY name')
+		usr_grps=db.GqlQuery('SELECT * FROM UsrGroup WHERE user=:usr',usr=_wk)
+		
+		for grp in grps:			
+			tmp=False
+			for usr_grp in usr_grps:
+				if (grp.key()==usr_grp.group.key()):
+					tmp=True
+					break
+			if(tmp==True):
+				self.response.out.write(u"<input CHECKED type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))	
+			else:
+				self.response.out.write(u"<input type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))
+		
+			
+		self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;"><nobr/>""")	
+		
+		self.response.out.write(u"<span style=\"float:left;width:120px;\">&nbsp</span><input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\></div>"%(_wk.key()))		
 	
 		self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
 	
@@ -228,7 +264,7 @@ class SetPasswdPg(webapp.RequestHandler):
 			}
 		}
 				
-		</script></head> <body>%s"""%(lcncss.style,key,lcncss.beg("")))	
+		</script></head> <body>%s"""%(lcncss.style,key,lcncss.begResetPass("")))	
 		self.response.out.write(u"""<b>Ввод нового пароля:</b> %s<br/><table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
 		self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf"><br/></div>		
 		 <input type="button" onclick="setpass()" value="Изменить">""")

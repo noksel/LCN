@@ -16,6 +16,7 @@ import updateOrder
 import properties
 import sign
 import notice
+import groups
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -67,6 +68,8 @@ appl = webapp.WSGIApplication([('/login', sign.Login)
 															,('/worker/set-passwd-pg',workers.SetPasswdPg)
 															,('/worker/set-passwd',workers.SetPasswd)
 															,('/worker/gen-reset',workers.GenReset)
+															,('/groups',groups.GroupsPage)
+															,('/groups/add',groups.GroupAdd)
 															,('/equipment',equipment.EqPage)
 															,('/equipment/add',equipment.AddEq)
 															,('/planeq',PlanEq.PlanEqPage)
@@ -125,8 +128,8 @@ def init():
 	wk.put()
 	wk=workers.Worker(surname=u"Дрягин")	
 	wk.put()
-	wk=workers.Worker(surname=u"Леснов", email='ss18f@mail.ru',passwd="111111" )	
-	wk.put()
+	wkl=workers.Worker(surname=u"Леснов", email='ss18f@mail.ru',passwd="111111" )	
+	wkl.put()
 	
 	tpaymnt= tpay.TypePayment(name=u'Контракт')
 	tpaymnt.put()
@@ -168,6 +171,15 @@ def init():
 	vd=vendor.Vendor(name=u'ООО "Торговый Дом Паллет Тракс"')
 	vd.put()
 	
+	grpa=workers.Group(name="admin")
+	grpa.put()
+	
+	grpw=workers.Group(name="workers")
+	grpw.put()
+	
+	usr_grp = workers.UsrGroup(user=wkl,group=grpa)
+	usr_grp.put()
+	
 def erase():
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment')
@@ -197,6 +209,11 @@ def erase():
 	prs=db.GqlQuery("select * from Property")
 	db.delete(prs)
 		
+	usr_grp=db.GqlQuery("select * from UsrGroup")
+	db.delete(usr_grp)
+	
+	grp=db.GqlQuery("select * from Group")
+	db.delete(grp)
 def main():
  wsgiref.handlers.CGIHandler().run(appl)
  #erase()
