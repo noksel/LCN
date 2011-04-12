@@ -65,44 +65,66 @@ class OrderPage(webapp.RequestHandler):
 				self.response.out.write("<td><table>")
 			
 				for e in ends:
-					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key(),e.key())
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href=\\\'/order/submit?endsmnt=%s\\\'\">"%(str(e.key()),str(e.key()))
 					if(e.submit==True):
 						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
-					
+					elif(sb.key()!=e.submiter.key()):
+						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"DISABLED>"%(e.key())
+						
 					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
 			
 				self.response.out.write("</table></td></tr>")		
-	
+################### #############	
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write("""<html><head>%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+		self.response.out.write("""<html><head>
+		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script type="text/javascript"> 
+		$(document).ready(function()
+		{
+			$("#ord").click(function()
+			{ $("#tabl").replaceWith('""")
 			
-		#ords=db.GqlQuery('SELECT * FROM Order')
-		#ends=db.GqlQuery("SELECT * FROM Endorsment")
-		#db.delete(ords)
-		#db.delete(ends)
-		
-		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
-		<tr><td>Черновики</td></tr>""")
-		
+		self.response.out.write(u"""<div id="tabl"> """)
+		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr><tr><td>Черновики</td></tr>""")
 		self.getMyRough(wk,0)
-		
 		self.response.out.write(u"<tr><td>На одобрении:</td></tr>")
 		self.getMyRough(wk,1)
 		
 		self.response.out.write(u"<tr><td>Одобренные:</td></tr>")
 		self.getMyRough(wk,2)		
-		self.response.out.write("</table>")
+		self.response.out.write("</table> </div>');")
+					
+			
+		self.response.out.write("""	
+			});				
+			$("#subm").click(function()
+			{ $("#tabl").replaceWith('	""")
 		
-		self.response.out.write(u"""<br/><b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>
-		""")
+		self.response.out.write(u"""<div id="tabl"> """)	
+		self.response.out.write(u"""<b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 		
 		self.response.out.write(u"<tr><td>Одобрить:</td></tr>")
 		self.getToSubm(wk, False)
 		self.response.out.write(u"<tr><td>Одобренные мной:</td></tr>")
 		self.getToSubm(wk, True)				
 		
-		self.response.out.write("</table>")
+		self.response.out.write("</table></div>');")	
+				
+		self.response.out.write("""	});		
+		$("#ord").click();
+		});	
+		</script>
+		%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+			
+		#ords=db.GqlQuery('SELECT * FROM Order')
+		#ends=db.GqlQuery("SELECT * FROM Endorsment")
+		#db.delete(ords)
+		#db.delete(ends)
+		self.response.out.write(u"""<div class="titlePg">Заявки:</div><br/>""")
+		
+		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><br/><br/><div id="tabl"></div>""")
+		
 		self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
 	
 class OrdAdd(webapp.RequestHandler):

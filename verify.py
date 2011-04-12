@@ -8,7 +8,7 @@ def verifyUsr(obj):
 			wk= db.get(obj.request.str_cookies['session'])
 			"%s"%wk.surname
 			return 1;
-		except:
+		except (db.BadKeyError, AttributeError):
 			return 0;
 	else:
 		return 0;
@@ -23,7 +23,7 @@ def verifyRightEndors(obj,endrsment):
 				return 1;
 			else:
 				return 0;
-		except:
+		except (db.BadKeyError, AttributeError):
 			return 0;
 	
 	else:

@@ -2,6 +2,7 @@
 import workers
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+import datetime
 
 class Login(webapp.RequestHandler):
 	def get(self):
@@ -11,7 +12,7 @@ class Login(webapp.RequestHandler):
 				wk= db.get(self.request.str_cookies['session'])
 				"%s"%wk.surname
 				self.redirect('/')				
-			except:
+			except (db.BadKeyError, AttributeError):
 			 self.CreateLgPg()			
 		else:
 			self.CreateLgPg()
@@ -53,7 +54,7 @@ class Login(webapp.RequestHandler):
 						<div class="row"><div class="cell">E-mail:</div> <div class="cell"><input name="email"></div></div>
 						<div class="row"><div class="cell">Пароль:</div> <div class="cell"><input name="passwd" type="password"></div></div>
 					</div>
-					<input type="checkbox" name="svssn" value="true"> Оставаться в системе<br/>
+					<input type="checkbox" name="longsess" value="True"> Оставаться в системе<br/>
 
 					<br/>
 					<input type="submit" value="Войти">
@@ -73,8 +74,11 @@ class Sign(webapp.RequestHandler):
 		if(wks.count()>0):
 			wk=wks[0]		
 			pswd=self.request.get('passwd')
-			if (pswd==wk.passwd):
-				self.response.headers.add_header('Set-Cookie',"session=%s; path=/; expires=Mon, 18 Apr 2011 11:48:41 GMT;"%wk.key())
+			if (pswd==wk.passwd and self.request.get('longsess')=="True"):
+				m=datetime.date.today()+datetime.timedelta(days=30)
+				self.response.headers.add_header('Set-Cookie',"session=%s; path=/; expires=%s;"%(wk.key(),m.strftime("%a, %d %b %Y %T GTM")))
+			else:
+				self.response.headers.add_header('Set-Cookie',"session=%s; path=/;"%(wk.key()))
 				
 
 		self.redirect('/')
