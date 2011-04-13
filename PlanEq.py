@@ -35,7 +35,7 @@ class PlanEqPage(webapp.RequestHandler):
 			
 			self.response.out.write(u"<tr> <td>%s %s</td> <td>%s</td><td>%s</td>" % (peq.equipment.name,crOrd,peq.quantity,peq.comment))
 
-			self.response.out.write("<td>%s</td></tr>" % (peq.respWk.surname))							
+			self.response.out.write("<td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td></tr>" % (peq.respWk.key(),peq.respWk.surname))							
 		
 		self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
 		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
@@ -48,7 +48,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 			self.redirect('/') 
  
  def doSmf(self):
-	wk= db.get(self.request.str_cookies['session']) 
+	cUsr= db.get(self.request.str_cookies['session']) 
 	self.response.out.write(u"""<html><head>%s
 	<script src="/script/my.js"></script>
 	<script src="/script/jquery-1.5.2.min.js"></script>
@@ -67,7 +67,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	</script>
 	</head><body>%s
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
-	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(wk.surname)))
+	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment ORDER BY name')
 	for eq in eqs:
@@ -82,7 +82,9 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	self.response.out.write(u'<SELECT name=\"resp\">')
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	for wk in wks:
-		self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+		if(unicode(cUsr.key()) in verify.getList(['admin']) or wk.key()==cUsr.key()):
+			self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+	
 	self.response.out.write(u'</SELECT><br/>')
 	
 	self.response.out.write(u"""

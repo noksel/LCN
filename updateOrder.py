@@ -100,7 +100,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 			tmp=False
 			for end in ends:
 				if (_wk.key()==end.submiter.key()):
-					if(verify.verifyRightEndors(self,end)): 
+					if(verify.verifyRightEndors(self,end) and end.submit==False): 
 						e=end
 					tmp=True
 					break
@@ -112,7 +112,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 					self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
 		
 		
-		# количество обновляется. вернуть в план??
+		#удаление- количество обновляется. вернуть в план??
 		if(wk.key()==_ord.respWk.key()):
 		 self.response.out.write(u"<input id=\"enbtn\"type=\"button\" name=\"enable\" value=\"Разблокировать для изменения\"></br>")
 		 self.response.out.write(u"""<input id='submCh' type="button" value="Принять изменения" onclick="javascript:window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(_ord.key(),_ord.respWk.key(),lcncss.Mtempl.end))

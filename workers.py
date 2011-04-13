@@ -35,10 +35,10 @@ class WorkersPage(webapp.RequestHandler):
 			self.redirect('/')
 			 
  def doSmf(self):
- 	wk= db.get(self.request.str_cookies['session'])
+ 	cUsr= db.get(self.request.str_cookies['session'])
 	self.response.out.write("""<html>
 														<head>%s</head>
-														<body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+														<body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
 	self.response.out.write('<table border="1">')
@@ -48,7 +48,11 @@ class WorkersPage(webapp.RequestHandler):
  
 	for wk in wks:
 		
-		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td><td>%s</td></tr>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone,wk.key()))	
+		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone))
+		if(unicode(cUsr.key()) in verify.getList(['admin'])):
+			self.response.out.write("<td>%s</td>"%(wk.passwd))	
+		
+		self.response.out.write("</tr>")
 			
 	self.response.out.write('</table></br>')
 
@@ -159,7 +163,7 @@ class WorkerPg(webapp.RequestHandler):
 														</head>
 														<body>%s"""%(lcncss.style,_wk.key(),lcncss.beg(wk.surname)))
 		
-		self.response.out.write(u"Изменение данных сотрудника<br/>")
+		self.response.out.write(u"Данные сотрудника<br/>")
 		
 		self.response.out.write(u"""
 							
@@ -190,14 +194,15 @@ class WorkerPg(webapp.RequestHandler):
 					tmp=True
 					break
 			if(tmp==True):
-				self.response.out.write(u"<input CHECKED type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))	
+				self.response.out.write(u"<input DISABLED CHECKED type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))	
 			else:
-				self.response.out.write(u"<input type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))
+				self.response.out.write(u"<input DISABLED type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))
 		
-			
-		self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;">""")	
+		if(unicode(wk.key()) in verify.getList(['admin']) or wk.key()==_wk.key()):	
+			self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;">""")	
 		
 		if(unicode(wk.key()) in verify.getList(['admin'])):
+			self.response.out.write(u"<script type=\"text/javascript\">$('input[name=group]').attr('disabled',false);</script>")
 			self.response.out.write(u"<span style=\"float:left;width:120px;\">&nbsp</span><input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\></div>"%(_wk.key()))		
 	
 		self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)

@@ -34,13 +34,14 @@ class OrderPage(webapp.RequestHandler):
 			else:
 				self.redirect('/')
 	## подумать. сделать. "одобрить"-мне надо одобрить. "мои заявки на одобрении"-я подал на одобрение
+	
 	def getMyRough(self,wk,stat):
 		
 		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
 			
 		for _ord in ords:
 			self.response.out.write(u"<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.surname))
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.key(),_ord.respWk.surname))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			

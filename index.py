@@ -36,7 +36,7 @@ class MainPage(webapp.RequestHandler):
 		<body>
 			%s"""%(lcncss.style,lcncss.beg(lwk.surname)))
 			
-				nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")
+				nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")[0:4]
 				
 				for nt in nts:
 					self.response.out.write(u"""Автор: <b>%s</b><br/>Дата: <b>%s</b><br/> Заголовок: <b>%s</b><br/> Объявление: %s<hr/>"""%(nt.author.surname,nt.date,nt.title,nt.body))
