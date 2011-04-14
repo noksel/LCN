@@ -17,7 +17,7 @@ class TypePayPg(webapp.RequestHandler):
 	
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s</head><body>%sТипы оплаты: </br></br> <table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Типы оплаты:</div><table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		for tp in tps:
 			self.response.out.write("<tr><td>%s</td></tr>"%(tp.name))

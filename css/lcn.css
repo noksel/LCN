@@ -39,4 +39,28 @@
 				width:85%;			
 			}
 			
+			.notice
+			{
+				color: red;
+			}
+			
+			.titlePg
+			{
+				font-weight:bold;
+				
+				margin-left:10px;
+				margin-bottom:20px;
+			}
+			
+			.ntRow
+			{
+				float:left;
+				font-weight:bold;
+				margin-right: 10px;
+			}
+			
+			.ntD
+			{
+			
+			}
 

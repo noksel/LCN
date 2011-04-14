@@ -23,7 +23,7 @@ class VendorPage(webapp.RequestHandler):
 		</head>
 		<body>
 		%s
-		<b>Поставщики:</b>
+		<div class="titlePg">Поставщики:</div>
 		<table>
 		"""%(lcncss.style,lcncss.beg(wk.surname)))
 		vds=db.GqlQuery('SELECT * FROM Vendor')			

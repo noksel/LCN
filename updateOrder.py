@@ -1,6 +1,5 @@
 # -*-  coding: UTF-8 -*-
 import lcncss
-import my_js
 import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -16,6 +15,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		wk= db.get(self.request.str_cookies['session'])
 		self.response.out.write(u"""<html><head>%s
 		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script src="/script/my.js"></script>
 		<script type="text/javascript">
 			$(document).ready( function()
 			{
@@ -31,13 +31,14 @@ class UpdateOrderPg(webapp.RequestHandler):
 			}			
 			);
 		</script>		
-		<script>equipment='%s';	%s</script>
-		</head><body>%s<b>Правка заявки</b><table>"""%(lcncss.style,_ord.equipment.key(), my_js.getChList,lcncss.beg(wk.surname)))
+		<script>equipment='%s';</script>
+		</head><body>%s<div class="titlePg">Правка заявки</div><table>"""%(lcncss.style,_ord.equipment.key(),lcncss.beg(wk.surname)))
 		
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input class=\"dis\" id=\"quant\" value=\"%s\"></td></tr>"%_ord.quantity)
 		
 		self.response.out.write(u"<tr><td>Цена(руб.):</td> <td><input class=\"dis\" name=\"price\" value=\"%s\"></td></tr>"%_ord.price)
+		self.response.out.write(u"<tr><td>Стоимость:</td> <td><input DISABLED id=\"cost\" value=\"%s\"></td></tr>"%(_ord.quantity*_ord.price))
 
 		self.response.out.write(u"<tr><td>Поставщик:</td> <td><SELECT class=\"dis\" name=\"vendor\">")
 		vds =db.GqlQuery("SELECT * FROM Vendor")
@@ -83,8 +84,15 @@ class UpdateOrderPg(webapp.RequestHandler):
 				self.response.out.write(u"<OPTION SELECTED value=\"%s\">%s"%(tp.key(),tp.name))
 			else:
 				self.response.out.write(u"<OPTION value=\"%s\">%s"%(tp.key(),tp.name))	
+		
 		self.response.out.write(u"""</SELECT></td></tr>		
-				<tr><td>Тех.здание:</td> <td><textarea class=\"dis\" name="tz" rows="5" cols="40" >%s</textarea></td></tr>"""%_ord.tz) #опциональное
+				<tr><td>Тех.здание:<br/>
+				(укажите ссылку на документ ТЗ):<br/>
+				<a href="https://docs.google.com">https://docs.google.com</>
+				
+				</td> <td><input class="dis" name="tz" value="%s"></br><a href="%s">%s</a></td></tr>"""%(_ord.tz,_ord.tz,_ord.tz)) #опциональное
+		
+	
 				
 		self.response.out.write(u"<tr><td>Ответственные:</td> <td>%s</td></tr></table>"%_ord.respWk.surname)
 		
@@ -98,23 +106,40 @@ class UpdateOrderPg(webapp.RequestHandler):
 		e=None
 		for _wk in wks:
 			tmp=False
+			allEnd=True
+			sbm=""
 			for end in ends:
+				if(end.submit==False):
+					allEnd=False
+									
 				if (_wk.key()==end.submiter.key()):
+					if (end.submit==True):
+						sbm=u"(Одобрил)"
 					if(verify.verifyRightEndors(self,end) and end.submit==False): 
 						e=end
 					tmp=True
 					break
 			if(tmp==True):
 				if(_wk.key()!=_ord.respWk.key()):
-					self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))		
+					
+					self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s %s</br>"%(_wk.key(),_wk.surname,sbm))		
 			else:
 				if(_wk.key()!=_ord.respWk.key()):
 					self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
 		
 		
-		#удаление- количество обновляется. вернуть в план??
+		
 		if(wk.key()==_ord.respWk.key()):
-		 self.response.out.write(u"<input id=\"enbtn\"type=\"button\" name=\"enable\" value=\"Разблокировать для изменения\"></br>")
-		 self.response.out.write(u"""<input id='submCh' type="button" value="Принять изменения" onclick="javascript:window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">%s</body></html>"""%(_ord.key(),_ord.respWk.key(),lcncss.Mtempl.end))
+			if(_ord.status==0 or _ord.status==1):
+		 		self.response.out.write(u"<div class=\"notice\">Уважаемые коллеги! если заявка находится на одобрении и вы решили изменить какие-то данные то все \"Подтверждения\" на закупку будут сброшены. </div>")
+		 		self.response.out.write(u"<input id=\"enbtn\"type=\"button\" name=\"enable\" value=\"Разблокировать для изменения\">")
+		 		self.response.out.write(u"""<div id="submCh"><input type="button" value="Принять изменения" onclick="javascript:window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">"""%(_ord.key(),_ord.respWk.key()))
+		 		self.response.out.write(u"""<input type="button" value="Удалить заявку" onclick="javascript:window.location.href='/order/dell?ord=%s';" > </div>"""%(_ord.key()))
+		 	elif(_ord.status==2):
+		 		self.response.out.write(u"""<input type="button" value="Исполнена" onclick="javascript:window.location.href='/order/tohist?ord=%s';" > """%(_ord.key()))
+		 		self.response.out.write(u"""<input type="button" value="Удалить заявку" onclick="javascript:window.location.href='/order/dell?ord=%s';" > """%(_ord.key()))
+		 
 		if(e):
 			self.response.out.write(u"<input type=\"button\" name=\"endsmnt\" value=\"Одобрить\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key()))
+			
+		self.response.out.write(u"""%s</body></html>"""%(lcncss.Mtempl.end))

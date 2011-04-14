@@ -22,12 +22,12 @@ class GroupsPage(webapp.RequestHandler):
 		</head>
 		<body>
 		%s
-		<b>Группы:</b>
+		<div class="titlePg">Группы:</div>
 		<table>
 		"""%(lcncss.style,lcncss.beg(wk.surname)))
 		grps=db.GqlQuery('SELECT * FROM Group')			
 		for gr in grps:
-			self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"% (gr.name,gr.key()))
+			self.response.out.write("<tr><td>%s</td></tr>"% (gr.name))
 		self.response.out.write(u"""
 		</table> 
 		<hr>

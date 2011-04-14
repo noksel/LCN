@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+
+
 import sys
 import cgi
 import workers
@@ -17,6 +19,7 @@ import properties
 import sign
 import notice
 import groups
+sys.path.append('/media/lnx/google_appengine')
 from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -32,6 +35,30 @@ class MainPage(webapp.RequestHandler):
 				self.response.out.write(u"""<html>
 		<head>
 			%s
+			<script src="/script/jquery-1.5.2.min.js"></script>
+			<script type="text/javascript">
+				$(document).ready( function()
+				{
+					$('#sbBtn').click( function()
+					{
+						var fm= $('<form method="post" action="/notice/add">'
+						+'<input name="title" value="'+$('input[name=title]')[0].value+'">'
+						+'<textarea name="body" cols="100" rows="10">'+$('textarea[name=body]')[0].value +'</textarea>'
+						+'</form>')
+						if($('input[name=title]')[0].value=='')
+							alert('Введите заголовок объявления');
+						else if($('textarea[name=body]')[0].value=='')
+							alert('Введите текст объявления');
+						else if($('textarea[name=body]')[0].value.length>850)
+							alert('Текст объявления слишком длинный');
+						else
+							fm.submit();
+					}						
+					);
+				}				
+				);
+				
+			</script>			
 			</head>
 		<body>
 			%s"""%(lcncss.style,lcncss.beg(lwk.surname)))
@@ -39,17 +66,17 @@ class MainPage(webapp.RequestHandler):
 				nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")[0:4]
 				
 				for nt in nts:
-					self.response.out.write(u"""Автор: <b>%s</b><br/>Дата: <b>%s</b><br/> Заголовок: <b>%s</b><br/> Объявление: %s<hr/>"""%(nt.author.surname,nt.date,nt.title,nt.body))
+					self.response.out.write(u"""<div class="ntRow">Автор:</div> <div class="ntD">%s</div><div class="ntRow">Дата:</div> <div class="ntD">%s</div> <div class="ntRow">Заголовок:</div> <div class="ntD">%s</div> <div class="ntRow">Объявление:</div> <div class="ntD">%s</div><hr/>"""%(nt.author.surname,nt.date,nt.title,nt.body))
 			
-				self.response.out.write(u"""<div><form method="post" action="/notice/add">Заголовок объявления: <input name="title"><br/>
-			Объявление:<br/> <textarea name="body" cols="100" rows="10"></textarea><br/><input type="submit" value="Отправить"></form>
+				self.response.out.write(u"""<div><form method="post" action="/notice/add">Заголовок объявления: <input  name="title"><br/>
+			Объявление:<br/> <textarea name="body" cols="100" rows="10"></textarea><br/><input id="sbBtn" type="button" value="Отправить"></form>
 			 </div>""")
 			
 				self.response.out.write(u"""%s
 		</body>
 		</html>		
 		"""%(lcncss.Mtempl.end))
-			except :
+			except (db.BadKeyError, AttributeError):
 				self.redirect('/login')
 			
 
@@ -85,6 +112,8 @@ appl = webapp.WSGIApplication([('/login', sign.Login)
 															,('/order/update-pg',updateOrder.UpdateOrderPg)
 															,('/order/update',order.OrdUpdate)
 															,('/order/add',order.OrdAdd)
+															,('/order/dell',order.DellOrd)
+															,('/order/tohist',order.OrdToHist)
 															,('/planeq/to-order',toOrder.ToOrderPage)
 															,('/tpaymnt',tpay.TypePayPg)
 															,('/tpaymnt/add',tpay.TypePaymntAdd)],debug=True)
@@ -171,11 +200,18 @@ def init():
 	vd=vendor.Vendor(name=u'ООО "Торговый Дом Паллет Тракс"')
 	vd.put()
 	
-	grpa=workers.Group(name="admin")
+	grpa=workers.Group(name=u"Администраторы")
 	grpa.put()
-	
-	grpw=workers.Group(name="workers")
+	grpw=workers.Group(name=u"Работники")
 	grpw.put()
+	grp=workers.Group(name=u"Ответственные")
+	grp.put()
+	grp=workers.Group(name=u"Внешние службы")
+	grp.put()
+	grp=workers.Group(name=u"Студенты")
+	grp.put()
+	grp=workers.Group(name=u"Аспиранты")
+	grp.put()	
 	
 	usr_grp = workers.UsrGroup(user=wkl,group=grpa)
 	usr_grp.put()
@@ -211,6 +247,9 @@ def erase():
 		
 	usr_grp=db.GqlQuery("select * from UsrGroup")
 	db.delete(usr_grp)
+	
+	nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")
+	db.delete(nts)
 	
 	grp=db.GqlQuery("select * from Group")
 	db.delete(grp)

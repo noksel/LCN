@@ -18,7 +18,7 @@ class EqPage(webapp.RequestHandler):
 	
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s</head><body>%s Список оборудования:</br></br> <table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Список оборудования:</div><table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:

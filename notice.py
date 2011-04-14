@@ -6,7 +6,7 @@ from google.appengine.ext import webapp
 
 class Notice(db.Model):
 	title=db.StringProperty()
-	body=db.StringProperty(multiline=True)
+	body=db.TextProperty()
 	author=db.ReferenceProperty(workers.Worker)
 	date = db.DateTimeProperty(auto_now_add=True)
 	

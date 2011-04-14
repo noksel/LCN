@@ -18,8 +18,9 @@ class Order(db.Model):
 	dateVend=db.StringProperty()
 	payer=db.ReferenceProperty(payer.Payer)
 	typePayment=db.ReferenceProperty(tpay.TypePayment)
-	tz=db.StringProperty(multiline=True)
+	tz=db.LinkProperty()
 	respWk=db.ReferenceProperty(workers.Worker)
+	dateUpd = db.DateTimeProperty(auto_now=True)
 	
 class Endorsment(db.Model):
 	order=db.ReferenceProperty(Order)
@@ -33,8 +34,7 @@ class OrderPage(webapp.RequestHandler):
 				self.doSmf()
 			else:
 				self.redirect('/')
-	## подумать. сделать. "одобрить"-мне надо одобрить. "мои заявки на одобрении"-я подал на одобрение
-	
+		
 	def getMyRough(self,wk,stat):
 		
 		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
@@ -94,6 +94,8 @@ class OrderPage(webapp.RequestHandler):
 		
 		self.response.out.write(u"<tr><td>Одобренные:</td></tr>")
 		self.getMyRough(wk,2)		
+		self.response.out.write(u"<tr><td>Исполненные:</td></tr>")
+		self.getMyRough(wk,3)	
 		self.response.out.write("</table> </div>');")
 					
 			
@@ -122,7 +124,7 @@ class OrderPage(webapp.RequestHandler):
 		#ends=db.GqlQuery("SELECT * FROM Endorsment")
 		#db.delete(ords)
 		#db.delete(ends)
-		self.response.out.write(u"""<div class="titlePg">Заявки:</div><br/>""")
+		self.response.out.write(u"""<div class="titlePg">Заявки:</div>""")
 		
 		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><br/><br/><div id="tabl"></div>""")
 		
@@ -160,6 +162,7 @@ class OrdAdd(webapp.RequestHandler):
 			_end.comment=""
 			_end.put()			
 		self.redirect('/order')
+
 class OrdUpdate(webapp.RequestHandler):
 	def get(self):
 		if (verify.verifyUsr(self)):
@@ -191,4 +194,31 @@ class OrdUpdate(webapp.RequestHandler):
 			_end.submit=False
 			_end.comment=""
 			_end.put()			
+		self.redirect('/order')
+		
+class OrdToHist(webapp.RequestHandler):
+	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/order')	
+			
+	def doSmf(self):	
+		_ord=db.get(self.request.get('ord'))
+		_ord.status=3 
+		_ord.put()
+		self.redirect('/order')	
+		
+class DellOrd(webapp.RequestHandler):
+	def get(self):
+		if (verify.verifyUsr(self)):
+			self.doSmf()
+		else:
+			self.redirect('/order')	
+			
+	def doSmf(self):	
+		_ord=db.get(self.request.get('ord'))
+		ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+		db.delete(ends)
+		db.delete(_ord)
 		self.redirect('/order')

@@ -2,7 +2,6 @@
 import equipment
 import workers
 import lcncss
-import my_js
 import verify
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -12,6 +11,7 @@ class PlanEq(db.Model):
 	quantity=db.IntegerProperty()
 	comment=db.StringProperty()
 	respWk=db.ReferenceProperty(workers.Worker)
+	dateAdd = db.DateTimeProperty(auto_now_add=True)
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
@@ -22,18 +22,24 @@ class PlanEqPage(webapp.RequestHandler):
 				
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s </head><body>%s
-		"""%(lcncss.style,lcncss.beg(wk.surname)))
+		self.response.out.write(u"""<html><head>%s
+		<script src="/script/jquery-1.5.2.min.js"></script>
+		 </head><body>%s<div class="titlePg">План закупок оборудования:</div>"""%(lcncss.style,lcncss.beg(wk.surname)))
 		
 		peqs=db.GqlQuery('SELECT * FROM PlanEq')	
 		self.response.out.write(u"""<table border="1">
-														<tr><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
+														<tr><th></th><th>Название</th><th>Колличество</th><th>Комментарий</th><th>Ответственные</th></tr>""")
 		for peq in peqs:
 			crOrd=""
+			delPg=""
 			if (wk.key()==peq.respWk.key() ):
-			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()			
+			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()
+			 delPg=u"""<a href=\"javascript:(function(){
+			 															$.post('/planeq/del',{pkey: '%s'});
+			 															 window.location.href='/planeq';
+			 															})()\">X</a>"""%peq.key()			
 			
-			self.response.out.write(u"<tr> <td>%s %s</td> <td>%s</td><td>%s</td>" % (peq.equipment.name,crOrd,peq.quantity,peq.comment))
+			self.response.out.write(u"<tr><td>%s</td> <td>%s %s</td> <td>%s</td><td>%s</td>" % (delPg,peq.equipment.name,crOrd,peq.quantity,peq.comment))
 
 			self.response.out.write("<td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td></tr>" % (peq.respWk.key(),peq.respWk.surname))							
 		
@@ -65,7 +71,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	}	
 	);
 	</script>
-	</head><body>%s
+	</head><body>%s <div class="titlePg"> Добавить оборудование в план:</div>
 	<form method="get" action="/planeq/planeqadd"><div id="centre">
 	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	
@@ -81,10 +87,14 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	self.response.out.write(u'</br>Ответственный:')	
 	self.response.out.write(u'<SELECT name=\"resp\">')
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
-	for wk in wks:
-		if(unicode(cUsr.key()) in verify.getList(['admin']) or wk.key()==cUsr.key()):
-			self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 	
+	
+	for wk in wks:
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы']) and unicode(wk.key()) in verify.getList([u'Ответственные']) ):
+			self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+		elif(unicode(cUsr.key()) in verify.getList([u'Ответственные']) and wk.key()==cUsr.key()):
+			self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
+			
 	self.response.out.write(u'</SELECT><br/>')
 	
 	self.response.out.write(u"""

@@ -16,7 +16,7 @@ class PayerPage(webapp.RequestHandler):
 				
 	def doSmf(self):
 		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s</head><body>%s <table border="1">
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Список плательщиков:</div> <table border="1">
 		<tr><th>Плательщик</th></tr>
 		"""%(lcncss.style,lcncss.beg(wk.surname)))
 		prs=db.GqlQuery('SELECT * FROM Payer')

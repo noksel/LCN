@@ -3,7 +3,8 @@
 import lcncss
 import random
 import verify
-
+import hashlib
+import datetime
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -18,6 +19,7 @@ class Worker(db.Model):
 
 class Group(db.Model):
 	name=db.StringProperty()
+	description=db.StringProperty(multiline=True)
 	
 class UsrGroup(db.Model):
 	group=db.ReferenceProperty(Group)
@@ -40,7 +42,7 @@ class WorkersPage(webapp.RequestHandler):
 														<head>%s</head>
 														<body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
-	self.response.out.write(u'Список сотрудников лаборатории:</br></br>')
+	self.response.out.write(u'<div class="titlePg">Список сотрудников лаборатории:</div>')
 	self.response.out.write('<table border="1">')
 	self.response.out.write(u"""
 														<tr><th>Фамилия</th><th>Имя</th><th>Отчество</th><th>E-mail</th><th>Телефон</th> </tr>
@@ -49,7 +51,7 @@ class WorkersPage(webapp.RequestHandler):
 	for wk in wks:
 		
 		self.response.out.write("<tr><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td><td>%s</td><td>%s</td><td><a href=\"mailto:%s\">%s</a></td><td>%s</td>"%(wk.key(),wk.surname,wk.name,wk.patronymic,wk.email,wk.email,wk.phone))
-		if(unicode(cUsr.key()) in verify.getList(['admin'])):
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы'])):
 			self.response.out.write("<td>%s</td>"%(wk.passwd))	
 		
 		self.response.out.write("</tr>")
@@ -57,8 +59,8 @@ class WorkersPage(webapp.RequestHandler):
 	self.response.out.write('</table></br>')
 
 	
-	
-	self.response.out.write(u"""
+	if(unicode(cUsr.key()) in verify.getList([u'Администраторы'])):
+		self.response.out.write(u"""
 			<form method="post" action="/workers/add">
 				<div>Добавить сотрудника</div>
 				<div>
@@ -132,7 +134,7 @@ class WorkerPg(webapp.RequestHandler):
 		else:
 			self.redirect('/')	
 	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+		cUsr= db.get(self.request.str_cookies['session'])
 		_wk=db.get(self.request.get('wkey'))
 		self.response.out.write("""<html>
 														<head>
@@ -161,9 +163,9 @@ class WorkerPg(webapp.RequestHandler):
 															});
 														</script>
 														</head>
-														<body>%s"""%(lcncss.style,_wk.key(),lcncss.beg(wk.surname)))
+														<body>%s"""%(lcncss.style,_wk.key(),lcncss.beg(cUsr.surname)))
 		
-		self.response.out.write(u"Данные сотрудника<br/>")
+		self.response.out.write(u"<div class=\"titlePg\">Данные сотрудника</div>")
 		
 		self.response.out.write(u"""
 							
@@ -198,10 +200,10 @@ class WorkerPg(webapp.RequestHandler):
 			else:
 				self.response.out.write(u"<input DISABLED type=\"checkbox\" name=\"group\" value=\"%s\">%s</br>"%(grp.key(),grp.name))
 		
-		if(unicode(wk.key()) in verify.getList(['admin']) or wk.key()==_wk.key()):	
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы']) or cUsr.key()==_wk.key()):	
 			self.response.out.write(u"""<input id="sbm" type="button" value="Принять изменения" style="float:left;">""")	
 		
-		if(unicode(wk.key()) in verify.getList(['admin'])):
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы'])):
 			self.response.out.write(u"<script type=\"text/javascript\">$('input[name=group]').attr('disabled',false);</script>")
 			self.response.out.write(u"<span style=\"float:left;width:120px;\">&nbsp</span><input name=\"wk\" type=\"button\" value=\"Сбросить пароль\" onclick=\"javascript:window.location.href='/worker/gen-reset?wk=%s'\"\></div>"%(_wk.key()))		
 	
@@ -271,8 +273,8 @@ class SetPasswdPg(webapp.RequestHandler):
 		}
 				
 		</script></head> <body>%s"""%(lcncss.style,key,lcncss.begResetPass("")))	
-		self.response.out.write(u"""<b>Ввод нового пароля:</b> %s<br/><table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
-		self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf"><br/></div>		
+		self.response.out.write(u"""<div class="titlePg">Ввод нового пароля:</div> %s<table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
+		self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf" class="notice"><br/></div>		
 		 <input type="button" onclick="setpass()" value="Изменить">""")
 		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
 		
@@ -285,6 +287,7 @@ class GenReset(webapp.RequestHandler):
 	
 	def doSmf(self):
 		wk=db.get(self.request.get('wk'))		
-		rs=ResetPasswd(rkey=str(random.randrange(1000)), worker=wk)
+		m=hashlib.md5("".join([unicode(random.randrange(10000000000)),unicode(datetime.datetime.today())])).hexdigest()
+		rs=ResetPasswd(rkey=m, worker=wk)
 		self.response.out.write(u"""<html><body>Для задания пароля для "%s" перейдите по следующей ссылке:<br/><a href=\"/worker/set-passwd-pg?rkey=%s\">/worker/set-passwd-pg?rkey=%s<a></body></html>"""%(wk.surname,rs.rkey,rs.rkey))
 		rs.put()

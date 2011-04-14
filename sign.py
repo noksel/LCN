@@ -1,8 +1,16 @@
 # -*- coding: UTF-8 -*-
 import workers
+import datetime
+import hashlib
+import random
 from google.appengine.ext import db
 from google.appengine.ext import webapp
-import datetime
+
+
+class Session(db.Model):
+	session =db.StringProperty()
+	dateEnd= db.DateProperty()
+	user= db.ReferenceProperty(workers.Worker)
 
 class Login(webapp.RequestHandler):
 	def get(self):
@@ -57,7 +65,7 @@ class Login(webapp.RequestHandler):
 					<input type="checkbox" name="longsess" value="True"> Оставаться в системе<br/>
 
 					<br/>
-					<input type="submit" value="Войти">
+					<input style="float:right;" type="submit" value="Войти">
 					
 				</form>
 			</div>
@@ -74,11 +82,21 @@ class Sign(webapp.RequestHandler):
 		if(wks.count()>0):
 			wk=wks[0]		
 			pswd=self.request.get('passwd')
-			if (pswd==wk.passwd and self.request.get('longsess')=="True"):
-				m=datetime.date.today()+datetime.timedelta(days=30)
-				self.response.headers.add_header('Set-Cookie',"session=%s; path=/; expires=%s;"%(wk.key(),m.strftime("%a, %d %b %Y %T GTM")))
-			else:
-				self.response.headers.add_header('Set-Cookie',"session=%s; path=/;"%(wk.key()))
+			m=datetime.date.today()+datetime.timedelta(days=30)
+			sess=Session()
+			sess.session=hashlib.md5(u"".join([unicode(random.randrange(10000000000)),unicode(datetime.datetime.today())])).hexdigest()
+			sess.dateEnd=m
+			lses=""
+			
+			if (pswd==wk.passwd):
+				sessions=db.GqlQuery('SELECT * FROM Session WHERE user=:usr',usr=wk)
+				for ss in sessions:
+					if(ss.dateEnd>=datetime.date.today()):
+						db.delete(ss)				
+				if (self.request.get('longsess')=="True"):
+					lses="expires=%s;"%m.strftime("%a, %d %b %Y %T GTM")
+				self.response.headers.add_header('Set-Cookie',"session=%s; path=/;%s"%(wk.key(),lses))
+				sess.user=wk
 				
 
 		self.redirect('/')

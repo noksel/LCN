@@ -15,7 +15,16 @@ function getList(chName)
 			}
 			return astr;
 		};
-		
+function checkCount(nm)
+		{
+			chk=$('input[name='+nm+']');
+			for(i=0;i<chk.length;i++)
+				{
+					if(chk[i].checked)
+						return true;
+				}
+				return false;
+		}			
 		
 function checkmail(value) {
 reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
