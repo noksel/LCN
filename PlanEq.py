@@ -15,16 +15,17 @@ class PlanEq(db.Model):
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 				
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+	def doSmf(self,cUsr):
+
 		self.response.out.write(u"""<html><head>%s
 		<script src="/script/jquery-1.5.2.min.js"></script>
-		 </head><body>%s<div class="titlePg">План закупок оборудования:</div>"""%(lcncss.style,lcncss.beg(wk.surname)))
+		 </head><body>%s<div class="titlePg">План закупок оборудования:</div>"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		
 		peqs=db.GqlQuery('SELECT * FROM PlanEq')	
 		self.response.out.write(u"""<table border="1">
@@ -32,7 +33,7 @@ class PlanEqPage(webapp.RequestHandler):
 		for peq in peqs:
 			crOrd=""
 			delPg=""
-			if (wk.key()==peq.respWk.key() ):
+			if (cUsr.key()==peq.respWk.key() ):
 			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()
 			 delPg=u"""<a href=\"javascript:(function(){
 			 															$.post('/planeq/del',{pkey: '%s'});
@@ -48,13 +49,13 @@ class PlanEqPage(webapp.RequestHandler):
 		
 class PgPlanEqAdd(webapp.RequestHandler):
  def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/') 
  
- def doSmf(self):
-	cUsr= db.get(self.request.str_cookies['session']) 
+ def doSmf(self,cUsr):
 	self.response.out.write(u"""<html><head>%s
 	<script src="/script/my.js"></script>
 	<script src="/script/jquery-1.5.2.min.js"></script>
@@ -128,10 +129,11 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	
 class PEAdd(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
-			self.redirect('/')	
+			self.redirect('/')
 	def doSmf(self):
 		
 		pe=PlanEq()
@@ -155,10 +157,11 @@ class PEAdd(webapp.RequestHandler):
 		
 class PEDel(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
-			self.redirect('/')	
+			self.redirect('/')
 			
 	def doSmf(self):
 		pe=db.get(self.request.get('pkey'))

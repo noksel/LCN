@@ -10,14 +10,15 @@ class TypePayment(db.Model):
 	
 class TypePayPg(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
-			self.redirect('/')	
+			self.redirect('/')
 	
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Типы оплаты:</div><table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
+	def doSmf(self,cUsr):
+		
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Типы оплаты:</div><table border="1">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		tps=db.GqlQuery("SELECT * FROM TypePayment")
 		for tp in tps:
 			self.response.out.write("<tr><td>%s</td></tr>"%(tp.name))
@@ -31,8 +32,9 @@ class TypePayPg(webapp.RequestHandler):
 		
 class TypePaymntAdd(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')	
 				

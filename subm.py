@@ -8,11 +8,11 @@ from google.appengine.ext import webapp
 class submEnd(webapp.RequestHandler):
 	def get(self):
 		endrsmnt=db.get(self.request.get('endsmnt'))
+		getUsr=verify.verifyUsr(self)
 		
-		if (verify.verifyRightEndors(self,endrsmnt)):
+		if (verify.verifyRightEndors(getUsr,endrsmnt)):
 			self.doSmf()
 		else:
-			pass
 			self.redirect('/order')
 					
 	def doSmf(self):

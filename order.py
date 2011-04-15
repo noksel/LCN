@@ -30,10 +30,11 @@ class Endorsment(db.Model):
 	
 class OrderPage(webapp.RequestHandler):
 	def get(self):
-			if (verify.verifyUsr(self)):
-				self.doSmf()
-			else:
-				self.redirect('/')
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
+		else:
+			self.redirect('/')
 		
 	def getMyRough(self,wk,stat):
 		
@@ -76,8 +77,8 @@ class OrderPage(webapp.RequestHandler):
 			
 				self.response.out.write("</table></td></tr>")		
 ################### #############	
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+	def doSmf(self,cUsr):
+		
 		self.response.out.write("""<html><head>
 		<script src="/script/jquery-1.5.2.min.js"></script>
 		<script type="text/javascript"> 
@@ -88,14 +89,14 @@ class OrderPage(webapp.RequestHandler):
 			
 		self.response.out.write(u"""<div id="tabl"> """)
 		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr><tr><td>Черновики</td></tr>""")
-		self.getMyRough(wk,0)
+		self.getMyRough(cUsr,0)
 		self.response.out.write(u"<tr><td>На одобрении:</td></tr>")
-		self.getMyRough(wk,1)
+		self.getMyRough(cUsr,1)
 		
 		self.response.out.write(u"<tr><td>Одобренные:</td></tr>")
-		self.getMyRough(wk,2)		
+		self.getMyRough(cUsr,2)		
 		self.response.out.write(u"<tr><td>Исполненные:</td></tr>")
-		self.getMyRough(wk,3)	
+		self.getMyRough(cUsr,3)	
 		self.response.out.write("</table> </div>');")
 					
 			
@@ -108,9 +109,9 @@ class OrderPage(webapp.RequestHandler):
 		self.response.out.write(u"""<b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 		
 		self.response.out.write(u"<tr><td>Одобрить:</td></tr>")
-		self.getToSubm(wk, False)
+		self.getToSubm(cUsr, False)
 		self.response.out.write(u"<tr><td>Одобренные мной:</td></tr>")
-		self.getToSubm(wk, True)				
+		self.getToSubm(cUsr, True)				
 		
 		self.response.out.write("</table></div>');")	
 				
@@ -118,7 +119,7 @@ class OrderPage(webapp.RequestHandler):
 		$("#ord").click();
 		});	
 		</script>
-		%s</head><body>%s"""%(lcncss.style,lcncss.beg(wk.surname)))
+		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 			
 		#ords=db.GqlQuery('SELECT * FROM Order')
 		#ends=db.GqlQuery("SELECT * FROM Endorsment")
@@ -132,8 +133,9 @@ class OrderPage(webapp.RequestHandler):
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')
 	def doSmf(self):	
@@ -165,8 +167,9 @@ class OrdAdd(webapp.RequestHandler):
 
 class OrdUpdate(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')
 	
@@ -198,10 +201,11 @@ class OrdUpdate(webapp.RequestHandler):
 		
 class OrdToHist(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
-			self.redirect('/order')	
+			self.redirect('/')
 			
 	def doSmf(self):	
 		_ord=db.get(self.request.get('ord'))
@@ -211,10 +215,11 @@ class OrdToHist(webapp.RequestHandler):
 		
 class DellOrd(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
-			self.redirect('/order')	
+			self.redirect('/')
 			
 	def doSmf(self):	
 		_ord=db.get(self.request.get('ord'))

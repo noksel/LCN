@@ -19,6 +19,7 @@ import properties
 import sign
 import notice
 import groups
+import verify
 sys.path.append('/media/lnx/google_appengine')
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -28,11 +29,15 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 
 class MainPage(webapp.RequestHandler):
-  def get(self):
-		if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
-			try:
-				lwk= db.get(self.request.str_cookies['session'])
-				self.response.out.write(u"""<html>
+ def get(self):
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
+		else:
+			self.redirect('/login')
+			 
+ def doSmf(self,lwk):
+		self.response.out.write(u"""<html>
 		<head>
 			%s
 			<script src="/script/jquery-1.5.2.min.js"></script>
@@ -63,26 +68,20 @@ class MainPage(webapp.RequestHandler):
 		<body>
 			%s"""%(lcncss.style,lcncss.beg(lwk.surname)))
 			
-				nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")[0:4]
+		nts=db.GqlQuery("SELECT * FROM Notice ORDER BY date DESC")[0:4]
 				
-				for nt in nts:
-					self.response.out.write(u"""<div class="ntRow">Автор:</div> <div class="ntD">%s</div><div class="ntRow">Дата:</div> <div class="ntD">%s</div> <div class="ntRow">Заголовок:</div> <div class="ntD">%s</div> <div class="ntRow">Объявление:</div> <div class="ntD">%s</div><hr/>"""%(nt.author.surname,nt.date,nt.title,nt.body))
+		for nt in nts:
+			self.response.out.write(u"""<div class="ntRow">Автор:</div> <div class="ntD">%s</div><div class="ntRow">Дата:</div> <div class="ntD">%s</div> <div class="ntRow">Заголовок:</div> <div class="ntD">%s</div> <div class="ntRow">Объявление:</div> <div class="ntD">%s</div><hr/>"""%(nt.author.surname,nt.date,nt.title,nt.body))
 			
-				self.response.out.write(u"""<div><form method="post" action="/notice/add">Заголовок объявления: <input  name="title"><br/>
+		self.response.out.write(u"""<div><form method="post" action="/notice/add">Заголовок объявления: <input  name="title"><br/>
 			Объявление:<br/> <textarea name="body" cols="100" rows="10"></textarea><br/><input id="sbBtn" type="button" value="Отправить"></form>
 			 </div>""")
 			
-				self.response.out.write(u"""%s
+		self.response.out.write(u"""%s
 		</body>
 		</html>		
 		"""%(lcncss.Mtempl.end))
-			except (db.BadKeyError, AttributeError):
-				self.redirect('/login')
-			
-
-
-		else:
-			self.redirect('/login')
+				
 appl = webapp.WSGIApplication([('/login', sign.Login)
 															,('/', MainPage)
 															,('/notice/add',notice.AddNotice)

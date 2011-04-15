@@ -3,6 +3,8 @@ import workers
 import datetime
 import hashlib
 import random
+import verify
+
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -14,16 +16,12 @@ class Session(db.Model):
 
 class Login(webapp.RequestHandler):
 	def get(self):
-		
-		if(("session" in self.request.str_cookies) and (self.request.str_cookies['session']!="")):
-			try:
-				wk= db.get(self.request.str_cookies['session'])
-				"%s"%wk.surname
-				self.redirect('/')				
-			except (db.BadKeyError, AttributeError):
-			 self.CreateLgPg()			
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.redirect('/')					
 		else:
 			self.CreateLgPg()
+
 
 	def CreateLgPg(self):	
 		self.response.out.write("""
@@ -82,24 +80,28 @@ class Sign(webapp.RequestHandler):
 		if(wks.count()>0):
 			wk=wks[0]		
 			pswd=self.request.get('passwd')
-			m=datetime.date.today()+datetime.timedelta(days=30)
+			
 			sess=Session()
 			sess.session=hashlib.md5(u"".join([unicode(random.randrange(10000000000)),unicode(datetime.datetime.today())])).hexdigest()
-			sess.dateEnd=m
+			
 			lses=""
 			
 			if (pswd==wk.passwd):
 				sessions=db.GqlQuery('SELECT * FROM Session WHERE user=:usr',usr=wk)
+				m=datetime.date.today()+datetime.timedelta(days=1)
 				for ss in sessions:
-					if(ss.dateEnd>=datetime.date.today()):
+					if(ss.dateEnd<=datetime.date.today()):
 						db.delete(ss)				
 				if (self.request.get('longsess')=="True"):
+					m=datetime.date.today()+datetime.timedelta(days=30)
 					lses="expires=%s;"%m.strftime("%a, %d %b %Y %T GTM")
-				self.response.headers.add_header('Set-Cookie',"session=%s; path=/;%s"%(wk.key(),lses))
+				self.response.headers.add_header('Set-Cookie',"session=%s; path=/;%s"%(sess.session,lses))
+				sess.dateEnd=m
 				sess.user=wk
-				
+				sess.put()
 
 		self.redirect('/')
+		
 class Logout(webapp.RequestHandler):
 	def get(self):
 		self.response.headers.add_header('Set-Cookie',"session=; path=/;")

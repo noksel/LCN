@@ -12,15 +12,16 @@ class Notice(db.Model):
 	
 class AddNotice(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
-			self.redirect('/')	
+			self.redirect('/')
 	
-	def doSmf(self):
+	def doSmf(self,cUsr):
 		nt=Notice()
-		wk= db.get(self.request.str_cookies['session'])
-		nt.author=wk
+		
+		nt.author=cUsr
 		nt.title=self.request.get('title')
 		nt.body=self.request.get('body')
 		nt.put()

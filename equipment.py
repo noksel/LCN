@@ -11,14 +11,15 @@ class Equipment(db.Model):
 	
 class EqPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 	
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
-		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Список оборудования:</div><table border="1">"""%(lcncss.style,lcncss.beg(wk.surname)))
+	def doSmf(self,cUsr):
+		
+		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Список оборудования:</div><table border="1">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		eqs=db.GqlQuery('SELECT * FROM Equipment')
 		
 		for eq in eqs:
@@ -36,10 +37,11 @@ class EqPage(webapp.RequestHandler):
 
 class AddEq(webapp.RequestHandler):
 	def post(self):		
-			if (verify.verifyUsr(self)):
-				self.doSmf()
-			else:
-				self.redirect('/')
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
+		else:
+			self.redirect('/')
 						
 	def doSmf(self):
 		eq=Equipment()

@@ -31,13 +31,14 @@ class ResetPasswd(db.Model):
 	
 class WorkersPage(webapp.RequestHandler):
  def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 			 
- def doSmf(self):
- 	cUsr= db.get(self.request.str_cookies['session'])
+ def doSmf(self,cUsr):
+	
 	self.response.out.write("""<html>
 														<head>%s</head>
 														<body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
@@ -86,8 +87,9 @@ class WorkersPage(webapp.RequestHandler):
 
 class AddWorker(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')	
 	
@@ -103,8 +105,9 @@ class AddWorker(webapp.RequestHandler):
 
 class UpdtWorker(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')	
 	
@@ -129,12 +132,14 @@ class UpdtWorker(webapp.RequestHandler):
 
 class WorkerPg(webapp.RequestHandler):
 	def get(self):			
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')	
-	def doSmf(self):
-		cUsr= db.get(self.request.str_cookies['session'])
+	
+	def doSmf(self,cUsr):
+		
 		_wk=db.get(self.request.get('wkey'))
 		self.response.out.write("""<html>
 														<head>
@@ -280,8 +285,9 @@ class SetPasswdPg(webapp.RequestHandler):
 		
 class GenReset(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')
 	

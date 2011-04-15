@@ -9,16 +9,17 @@ class Payer(db.Model):
 	
 class PayerPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 				
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+	def doSmf(self, cUsr):
+		
 		self.response.out.write(u"""<html><head>%s</head><body>%s <div class="titlePg">Список плательщиков:</div> <table border="1">
 		<tr><th>Плательщик</th></tr>
-		"""%(lcncss.style,lcncss.beg(wk.surname)))
+		"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		prs=db.GqlQuery('SELECT * FROM Payer')
 		
 		for pr in prs:
@@ -33,8 +34,9 @@ class PayerPage(webapp.RequestHandler):
 		
 class PayerAdd(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')	
 				

@@ -9,13 +9,14 @@ class Vendor(db.Model):
 	
 class VendorPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 				
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+	def doSmf(self,cUsr):
+		
 		self.response.out.write(u"""
 		<html>
 		<head>
@@ -25,7 +26,7 @@ class VendorPage(webapp.RequestHandler):
 		%s
 		<div class="titlePg">Поставщики:</div>
 		<table>
-		"""%(lcncss.style,lcncss.beg(wk.surname)))
+		"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		vds=db.GqlQuery('SELECT * FROM Vendor')			
 		for vd in vds:
 			self.response.out.write("<tr><td>%s</td></tr>"% (vd.name))
@@ -42,8 +43,9 @@ class VendorPage(webapp.RequestHandler):
 		
 class VendorAdd(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')		
 	

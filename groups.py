@@ -8,13 +8,14 @@ from google.appengine.ext import webapp
 
 class GroupsPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 				
-	def doSmf(self):
-		wk= db.get(self.request.str_cookies['session'])
+	def doSmf(self,cUsr):
+		
 		self.response.out.write(u"""
 		<html>
 		<head>
@@ -24,7 +25,7 @@ class GroupsPage(webapp.RequestHandler):
 		%s
 		<div class="titlePg">Группы:</div>
 		<table>
-		"""%(lcncss.style,lcncss.beg(wk.surname)))
+		"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 		grps=db.GqlQuery('SELECT * FROM Group')			
 		for gr in grps:
 			self.response.out.write("<tr><td>%s</td></tr>"% (gr.name))
@@ -41,8 +42,9 @@ class GroupsPage(webapp.RequestHandler):
 		
 class GroupAdd(webapp.RequestHandler):
 	def post(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf()			
 		else:
 			self.redirect('/')		
 	

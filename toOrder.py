@@ -6,20 +6,21 @@ from google.appengine.ext import webapp
 
 class ToOrderPage(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')
 				
-	def doSmf(self):
+	def doSmf(self,cUsr):
 		pl=db.get(self.request.get('kplan'))
-		wk= db.get(self.request.str_cookies['session'])
+		
 		self.response.out.write(u"""<html><head>%s<script src="/script/my.js"></script>
 		<script src="/script/jquery-1.5.2.min.js"></script>
 		<script type="text/javascript">equipment='%s';
 				
 		</script>
-			</head><body>%s <div class="titlePg">Создание заявки</div><table>"""%(lcncss.style,pl.equipment.key(),lcncss.beg(wk.surname)))
+			</head><body>%s <div class="titlePg">Создание заявки</div><table>"""%(lcncss.style,pl.equipment.key(),lcncss.beg(cUsr.surname)))
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%pl.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input id=\"quant\" value=\"%s\"></td></tr>"%pl.quantity)
 		

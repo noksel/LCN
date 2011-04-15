@@ -6,13 +6,15 @@ from google.appengine.ext import webapp
 
 class UpdateOrderPg(webapp.RequestHandler):
 	def get(self):
-		if (verify.verifyUsr(self)):
-			self.doSmf()
+ 		getUsr=verify.verifyUsr(self)
+ 		if (getUsr!=None):
+			self.doSmf(getUsr)			
 		else:
-			self.redirect('/')	
-	def doSmf(self):
+			self.redirect('/')
+			
+	def doSmf(self,cUsr):
 		_ord=db.get(self.request.get('kord'))
-		wk= db.get(self.request.str_cookies['session'])
+		
 		self.response.out.write(u"""<html><head>%s
 		<script src="/script/jquery-1.5.2.min.js"></script>
 		<script src="/script/my.js"></script>
@@ -32,7 +34,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 			);
 		</script>		
 		<script>equipment='%s';</script>
-		</head><body>%s<div class="titlePg">Правка заявки</div><table>"""%(lcncss.style,_ord.equipment.key(),lcncss.beg(wk.surname)))
+		</head><body>%s<div class="titlePg">Правка заявки</div><table>"""%(lcncss.style,_ord.equipment.key(),lcncss.beg(cUsr.surname)))
 		
 		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
 		self.response.out.write(u"<tr><td>Количество:</td> <td><input class=\"dis\" id=\"quant\" value=\"%s\"></td></tr>"%_ord.quantity)
@@ -115,7 +117,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 				if (_wk.key()==end.submiter.key()):
 					if (end.submit==True):
 						sbm=u"(Одобрил)"
-					if(verify.verifyRightEndors(self,end) and end.submit==False): 
+					if(verify.verifyRightEndors(cUsr,end) and end.submit==False): 
 						e=end
 					tmp=True
 					break
@@ -129,7 +131,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		
 		
 		
-		if(wk.key()==_ord.respWk.key()):
+		if(cUsr.key()==_ord.respWk.key()):
 			if(_ord.status==0 or _ord.status==1):
 		 		self.response.out.write(u"<div class=\"notice\">Уважаемые коллеги! если заявка находится на одобрении и вы решили изменить какие-то данные то все \"Подтверждения\" на закупку будут сброшены. </div>")
 		 		self.response.out.write(u"<input id=\"enbtn\"type=\"button\" name=\"enable\" value=\"Разблокировать для изменения\">")

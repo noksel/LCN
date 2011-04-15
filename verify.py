@@ -2,32 +2,29 @@
 from google.appengine.ext import db
 import workers
 
+class MyExc(Exception):
+	pass
+		
+
 def verifyUsr(obj):
 	if(("session" in obj.request.str_cookies) and (obj.request.str_cookies['session']!="")):
 		try:
-			wk= db.get(obj.request.str_cookies['session'])
-			"%s"%wk.surname
-			return 1;
-		except (db.BadKeyError, AttributeError):
-			return 0;
-	else:
-		return 0;
-		
-def verifyRightEndors(obj,endrsment):
-
-	if(("session" in obj.request.str_cookies) and (obj.request.str_cookies['session']!="")):
-		try:
-			wk= db.get(obj.request.str_cookies['session'])
-			"%s"%wk.surname		
-			if(endrsment.submiter.key()==wk.key()):
-				return 1;
+			sess=db.GqlQuery('SELECT * FROM Session WHERE session=:ss',ss=obj.request.str_cookies['session'])
+			if(sess.count()>0):
+				return sess[0].user
 			else:
-				return 0;
-		except (db.BadKeyError, AttributeError):
-			return 0;
-	
+				raise MyExc
+		except (MyExc):
+			return None
 	else:
-		return 0;
+		return None
+
+def verifyRightEndors(cUsr,endrsment):
+	if(endrsment.submiter.key()==cUsr.key()):
+		return 1
+	else:
+		return 0
+
 		
 def getList(grp_names): #лист имён групп. возвращается list ключей сотрудников
 	lst=[]
