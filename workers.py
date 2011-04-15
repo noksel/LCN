@@ -65,13 +65,15 @@ class WorkersPage(webapp.RequestHandler):
 			<form method="post" action="/workers/add">
 				<div>Добавить сотрудника</div>
 				<div>
-				<div style="float:left; height:100%; line-height:26px;">
+				
+				<div style="float:left;line-height:26px;">
 				Фамилия: </br>
 				Имя:</br>
 				Отчество:</br>
 				E-mail:</br>
 				Телефон:</br>
 				</div>
+				
 				<div>
 					<input name="surname"></br>
 					<input name="name"></br>
