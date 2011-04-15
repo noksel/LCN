@@ -65,7 +65,10 @@ class UpdateOrderPg(webapp.RequestHandler):
 			self.response.out.write(u"""
 				<OPTION value=\"0\">Черновик
 				<OPTION SELECTED value=\"2\">Одобрена</SELECT></td></tr>""")		
-				
+		elif (_ord.status==3):
+			self.response.out.write(u"""
+				<OPTION value=\"0\">Черновик
+				<OPTION SELECTED value=\"3\">Исполнена</SELECT></td></tr>""")			
 		self.response.out.write(u"""<tr><td>Дата поставки:</td> <td><input class=\"dis\" name=\"dateVend\" value=\"%s\"></td></tr>"""%_ord.dateVend)
 		
 		self.response.out.write(u"<tr><td>Плательщик:</td> <td><SELECT class=\"dis\" name=\"payer\">")
