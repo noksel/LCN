@@ -299,3 +299,7 @@ class GenReset(webapp.RequestHandler):
 		rs=ResetPasswd(rkey=m, worker=wk)
 		self.response.out.write(u"""<html><body>Для задания пароля для "%s" перейдите по следующей ссылке:<br/><a href=\"/worker/set-passwd-pg?rkey=%s\">/worker/set-passwd-pg?rkey=%s<a></body></html>"""%(wk.surname,rs.rkey,rs.rkey))
 		rs.put()
+		
+def getLnkToProfile(wk):
+	return "<a href=\"http://localhost:8080/workers/workerPg?wkey=%s\">%s</a>"%(wk.key(),wk.surname)
+	

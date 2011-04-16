@@ -25,18 +25,21 @@ class PayerPage(webapp.RequestHandler):
 		for pr in prs:
 			self.response.out.write("<tr><td>%s</td></tr>"%(pr.name))
 		
-		self.response.out.write(u"""</table>
-		<form method="post" action="/payer/add">
+		self.response.out.write(u"""</table>""")
+		
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+			self.response.out.write(u"""<form method="post" action="/payer/add">
 		</br>Добавить плательщика:</br>
 		Название: <input name="name"> <input type="submit" value="Добавить">
-		</form>
-		%s</body></html>"""%lcncss.Mtempl.end)
+		</form>""")		
+		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
 		
 class PayerAdd(webapp.RequestHandler):
 	def post(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf()			
 		else:
 			self.redirect('/')	
 				

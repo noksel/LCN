@@ -42,7 +42,7 @@ class OrderPage(webapp.RequestHandler):
 			
 		for _ord in ords:
 			self.response.out.write(u"<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.key(),_ord.respWk.surname))
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -51,7 +51,7 @@ class OrderPage(webapp.RequestHandler):
 				if(e.submit==True):
 					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
 					
-				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
+				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
 			
 			self.response.out.write("</table></td></tr>")
 		
@@ -62,7 +62,7 @@ class OrderPage(webapp.RequestHandler):
 			_ord=_end_sb.order
 			if (_ord.status==1 or _ord.status==2):
 				self.response.out.write(u"<tr>")
-				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,_ord.respWk.surname))
+				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
 				ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 				self.response.out.write("<td><table>")
 			
@@ -73,7 +73,7 @@ class OrderPage(webapp.RequestHandler):
 					elif(sb.key()!=e.submiter.key()):
 						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"DISABLED>"%(e.key())
 						
-					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(e.submiter.surname,mstr))
+					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
 			
 				self.response.out.write("</table></td></tr>")		
 ################### #############	
@@ -133,9 +133,10 @@ class OrderPage(webapp.RequestHandler):
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf()			
 		else:
 			self.redirect('/')
 	def doSmf(self):	
@@ -167,63 +168,68 @@ class OrdAdd(webapp.RequestHandler):
 
 class OrdUpdate(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 	
-	def doSmf(self):
+	def doSmf(self,cUsr):
 		_ord=db.get(self.request.get('ord'))
-		_ord.quantity=int(self.request.get('quant'))
-		_ord.price=float(self.request.get('price').replace(',','.'))
-		_ord.vendor=db.get(self.request.get('vendor'))
-		_ord.status=int(self.request.get('status'))
-		_ord.dateVend=self.request.get('date')
-		_ord.payer=db.get(self.request.get('payer'))
-		_ord.typePayment=db.get(self.request.get('tpay'))	
-		_ord.tz=self.request.get('tz')
-		_ord.respWk=db.get(self.request.get('resp'))
-		_ord.put()
+		
+		if(cUsr.key()==_ord.respWk.key()):
+		
+			_ord.quantity=int(self.request.get('quant'))
+			_ord.price=float(self.request.get('price').replace(',','.'))
+			_ord.vendor=db.get(self.request.get('vendor'))
+			_ord.status=int(self.request.get('status'))
+			_ord.dateVend=self.request.get('date')
+			_ord.payer=db.get(self.request.get('payer'))
+			_ord.typePayment=db.get(self.request.get('tpay'))	
+			_ord.tz=self.request.get('tz')
+			_ord.respWk=db.get(self.request.get('resp'))
+			_ord.put()
 
 				
-		ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
-		db.delete(ends)
-		wks=self.request.get('ends').split(':')
-		for wk in wks:
-			_end=Endorsment()
-			_end.order=_ord
-			_end.submiter=db.get(wk)
-			_end.submit=False
-			_end.comment=""
-			_end.put()			
+			ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+			db.delete(ends)
+			wks=self.request.get('ends').split(':')
+			for wk in wks:
+				_end=Endorsment()
+				_end.order=_ord
+				_end.submiter=db.get(wk)
+				_end.submit=False
+				_end.comment=""
+				_end.put()			
 		self.redirect('/order')
 		
 class OrdToHist(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 			
-	def doSmf(self):	
+	def doSmf(self,cUsr):	
 		_ord=db.get(self.request.get('ord'))
-		_ord.status=3 
-		_ord.put()
+		if(cUsr.key()==_ord.respWk.key()):
+			_ord.status=3 
+			_ord.put()
 		self.redirect('/order')	
 		
 class DellOrd(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 			
 	def doSmf(self):	
 		_ord=db.get(self.request.get('ord'))
-		ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
-		db.delete(ends)
-		db.delete(_ord)
+		if(cUsr.key()==_ord.respWk.key()):
+			ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+			db.delete(ends)
+			db.delete(_ord)
 		self.redirect('/order')

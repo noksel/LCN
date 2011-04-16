@@ -6,9 +6,12 @@ from google.appengine.ext import webapp
 
 class ToOrderPage(webapp.RequestHandler):
 	def get(self):
- 		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+ 		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			pl=db.get(self.request.get('kplan'))
+			
+			if (cUsr.key()==pl.respWk.key() ):
+				self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 				

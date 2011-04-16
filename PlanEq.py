@@ -15,9 +15,9 @@ class PlanEq(db.Model):
 	
 class PlanEqPage(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 				
@@ -43,15 +43,16 @@ class PlanEqPage(webapp.RequestHandler):
 			self.response.out.write(u"<tr><td>%s</td> <td>%s %s</td> <td>%s</td><td>%s</td>" % (delPg,peq.equipment.name,crOrd,peq.quantity,peq.comment))
 
 			self.response.out.write("<td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td></tr>" % (peq.respWk.key(),peq.respWk.surname))							
-		
-		self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+			self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
 		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
 		
 class PgPlanEqAdd(webapp.RequestHandler):
  def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf(cUsr)			
 		else:
 			self.redirect('/') 
  
@@ -129,9 +130,10 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	
 class PEAdd(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf()			
 		else:
 			self.redirect('/')
 	def doSmf(self):
@@ -157,13 +159,15 @@ class PEAdd(webapp.RequestHandler):
 		
 class PEDel(webapp.RequestHandler):
 	def post(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 			
-	def doSmf(self):
+	def doSmf(self,cUsr):
+		
 		pe=db.get(self.request.get('pkey'))
-		db.delete(pe)
+		if(cUsr.key()==pe.respWk.key()):
+			db.delete(pe)
 		

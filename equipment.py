@@ -11,9 +11,9 @@ class Equipment(db.Model):
 	
 class EqPage(webapp.RequestHandler):
 	def get(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 	
@@ -25,23 +25,26 @@ class EqPage(webapp.RequestHandler):
 		for eq in eqs:
 			self.response.out.write("<tr><td>%s</td></tr>" % (eq.name))
 				
-		self.response.out.write(u"""</table>
-		</br>
+		self.response.out.write(u"""</table></br>""")
+		
+		if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+			self.response.out.write(u"""
 		<form method="post" action="/equipment/add">
 		Добавить оборудование:</br>
 		<input name="name" size="50"><input type="submit" value="Добавить">
-		</form>		
+		</form>""")
+		self.response.out.write(u"""
 		%s</body></html>"""%lcncss.Mtempl.end)
 
 
 
 class AddEq(webapp.RequestHandler):
 	def post(self):		
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf()			
-		else:
-			self.redirect('/')
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf()			
+		self.redirect('/equipment')
 						
 	def doSmf(self):
 		eq=Equipment()

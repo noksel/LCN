@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 import workers
 import verify
 from google.appengine.ext import db
@@ -12,9 +13,10 @@ class Notice(db.Model):
 	
 class AddNotice(webapp.RequestHandler):
 	def post(self):
-		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники',u'Внешние службы'])):
+				self.doSmf(cUsr)			
 		else:
 			self.redirect('/')
 	
