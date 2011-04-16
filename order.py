@@ -18,7 +18,7 @@ class Order(db.Model):
 	dateVend=db.StringProperty()
 	payer=db.ReferenceProperty(payer.Payer)
 	typePayment=db.ReferenceProperty(tpay.TypePayment)
-	tz=db.LinkProperty()
+	tz=db.StringProperty()
 	respWk=db.ReferenceProperty(workers.Worker)
 	dateUpd = db.DateTimeProperty(auto_now=True)
 	
