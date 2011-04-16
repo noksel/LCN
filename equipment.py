@@ -43,8 +43,11 @@ class AddEq(webapp.RequestHandler):
 		cUsr=verify.verifyUsr(self)
  		if (cUsr!=None):
 			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
-				self.doSmf()			
-		self.redirect('/equipment')
+				self.doSmf()	
+			else:		
+				self.redirect('/equipment')
+		else:		
+			self.redirect('/equipment')
 						
 	def doSmf(self):
 		eq=Equipment()

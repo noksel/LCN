@@ -45,7 +45,8 @@ class VendorAdd(webapp.RequestHandler):
 	def post(self):
  		getUsr=verify.verifyUsr(self)
  		if (getUsr!=None):
-			self.doSmf()			
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				self.doSmf()			
 		else:
 			self.redirect('/')		
 	

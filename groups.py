@@ -46,8 +46,9 @@ class GroupAdd(webapp.RequestHandler):
 		cUsr=verify.verifyUsr(self)
  		if (cUsr!=None):
 			if(unicode(cUsr.key()) in verify.getList([u'Администраторы'])):
-				self.doSmf()			
-		self.redirect('/groups')		
+				self.doSmf()
+		else:					
+			self.redirect('/groups')		
 	
 	def doSmf(self):	
 		vd=workers.Group()

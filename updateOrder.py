@@ -6,11 +6,14 @@ from google.appengine.ext import webapp
 
 class UpdateOrderPg(webapp.RequestHandler):
 	def get(self):
- 		getUsr=verify.verifyUsr(self)
- 		if (getUsr!=None):
-			self.doSmf(getUsr)			
+ 		cUsr=verify.verifyUsr(self)
+ 		if (cUsr!=None):
+			_ord=db.get(self.request.get('kord'))
+			
+			if (cUsr.key()==_ord.respWk.key() ):
+				self.doSmf(cUsr)			
 		else:
-			self.redirect('/')
+		 self.redirect('/')
 			
 	def doSmf(self,cUsr):
 		_ord=db.get(self.request.get('kord'))
