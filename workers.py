@@ -163,7 +163,9 @@ class WorkerPg(webapp.RequestHandler):
 					+'<input name="phone" value="'+$('#phone')[0].value+'">'
 					+'<input name="groups" value="'+lst+'"></form>');
 					
-					if(checkmail($('#email')[0].value)){frm.submit();}
+					if(checkmail($('#email')[0].value)){
+					$('body').append(frm); 
+					frm.submit();}
 					
 					 } )
 															
@@ -256,6 +258,8 @@ class SetPasswdPg(webapp.RequestHandler):
     			inp.value=document.getElementById('confpass').value;
       		fm.appendChild(inp);
       		
+      		document.body.appendChild(fm);
+					
 					fm.submit();	
 				}		
 			else {

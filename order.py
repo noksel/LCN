@@ -226,7 +226,7 @@ class DellOrd(webapp.RequestHandler):
 		else:
 			self.redirect('/')
 			
-	def doSmf(self):	
+	def doSmf(self,cUsr):	
 		_ord=db.get(self.request.get('ord'))
 		if(cUsr.key()==_ord.respWk.key()):
 			ends= db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)

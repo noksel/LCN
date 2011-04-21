@@ -57,6 +57,7 @@ class MainPage(webapp.RequestHandler):
 						else if($('textarea[name=body]')[0].value.length>850)
 							alert('Текст объявления слишком длинный');
 						else
+							$('body').append(fm);
 							fm.submit();
 					}						
 					);

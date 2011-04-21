@@ -10,7 +10,9 @@ class UpdateOrderPg(webapp.RequestHandler):
  		if (cUsr!=None):
 			_ord=db.get(self.request.get('kord'))
 			
-			if (cUsr.key()==_ord.respWk.key() ):
+			end=db.GqlQuery('SELECT * FROM Endorsment WHERE order=:order and submiter=:sbm',order=_ord,sbm=cUsr)
+			
+			if (cUsr.key()==_ord.respWk.key() or (end.count()>0 and verify.verifyRightEndors(cUsr,end[0]))):
 				self.doSmf(cUsr)			
 		else:
 		 self.redirect('/')
