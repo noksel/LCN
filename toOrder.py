@@ -18,14 +18,15 @@ class ToOrderPage(webapp.RequestHandler):
 	def doSmf(self,cUsr):
 		pl=db.get(self.request.get('kplan'))
 		
-		self.response.out.write(u"""<html><head>%s<script src="/script/my.js"></script>
+		self.response.out.write(u"""<html><head>%s
 		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script src="/script/my.js"></script>
 		<script type="text/javascript">equipment='%s';
 				$(document).ready(function()
 				{
 					var price=''
 					var calc = function(){
-						$('input[name=cost]')[0].value=$('input[name=price]')[0].value*$('input[name=quant]')[0].value
+						$('input[name=cost]')[0].value=($('input[name=price]')[0].value*$('input[name=quant]')[0].value).toFixed(3);
 					}					
 					
 					

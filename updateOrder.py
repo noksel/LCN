@@ -35,6 +35,15 @@ class UpdateOrderPg(webapp.RequestHandler):
 									
 				}
 				);
+				
+					var price=''
+					var calc = function(){
+						$('#cost')[0].value=($('input[name=price]')[0].value*$('#quant')[0].value).toFixed(3);
+					}				
+					
+					$('input[name=price]').keyup(calc);
+					$('#quant').keyup(calc);	
+					
 			}			
 			);
 		</script>		
@@ -132,10 +141,12 @@ class UpdateOrderPg(webapp.RequestHandler):
 			if(tmp==True):
 				if(_wk.key()!=_ord.respWk.key()):
 					
-					self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s %s</br>"%(_wk.key(),_wk.surname,sbm))		
+					if(unicode(_wk.key()) in verify.getList([u'Работники'])):
+						self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s %s</br>"%(_wk.key(),_wk.surname,sbm))		
 			else:
-				if(_wk.key()!=_ord.respWk.key()):
-					self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
+				if(_wk.key()!=_ord.respWk.key()):					
+					if(unicode(_wk.key()) in verify.getList([u'Работники'])):
+						self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
 		
 		
 		
