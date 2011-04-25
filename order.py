@@ -142,8 +142,16 @@ class OrdAdd(webapp.RequestHandler):
 	def doSmf(self):	
 		_ord=Order()
 		_ord.equipment=db.get(self.request.get('eqipm'))
-		_ord.quantity=int(self.request.get('quant'))
-		_ord.price=float(self.request.get('price').replace(',','.'))
+		try:
+			_ord.quantity=int(self.request.get('quant'))
+		except(ValueError):
+			_ord.quantity=0
+	
+		try:
+			_ord.price=float(self.request.get('price').replace(',','.'))
+		except(ValueError):
+			_ord.price=0.0
+			
 		_ord.vendor=db.get(self.request.get('vendor'))
 		_ord.status=int(self.request.get('status'))
 		_ord.dateVend=self.request.get('date')

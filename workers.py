@@ -39,8 +39,23 @@ class WorkersPage(webapp.RequestHandler):
 			 
  def doSmf(self,cUsr):
 	
-	self.response.out.write("""<html>
-														<head>%s</head>
+	self.response.out.write(u"""<html>
+														<head>
+														<script src="/script/jquery-1.5.2.min.js"></script>
+														<script src="/script/my.js"></script>
+														<script type="text/javascript">
+															$(document).ready(function(){
+																	$('#sbm').click(
+																	function()
+																	{
+																		if(checkmail($('#email')[0].value))
+																			{$('form')[0].submit();}																		
+																	}
+																	);														
+															})
+														</script>
+														
+														%s</head>
 														<body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	self.response.out.write(u'<div class="titlePg">Список сотрудников лаборатории:</div>')
@@ -78,11 +93,11 @@ class WorkersPage(webapp.RequestHandler):
 					<input name="surname"></br>
 					<input name="name"></br>
 					<input name="patronymic"></br>
-					<input name="email"></br>
+					<input id="email" name="email"></br>
 					<input name="phone"></br>					
 				</div>
 				</div>
-				<input type="submit" value="Добавить">
+				<input id="sbm" type="button" value="Добавить">
 			</form>""")
 
 	self.response.out.write("""%s</body></html>"""%lcncss.Mtempl.end)
@@ -165,7 +180,8 @@ class WorkerPg(webapp.RequestHandler):
 					
 					if(checkmail($('#email')[0].value)){
 					$('body').append(frm); 
-					frm.submit();}
+					frm.submit();}				
+					
 					
 					 } )
 															
@@ -224,8 +240,12 @@ class SetPasswd(webapp.RequestHandler):
 	def post(self):
 		key=self.request.get('rkey')
 		rsts = db.GqlQuery("SELECT * FROM ResetPasswd WHERE rkey=:rkey",rkey=key)
+		
+		
 		rst=rsts[0]		
 		wk=rst.worker
+		sess = db.GqlQuery("SELECT * FROM Session WHERE user=:user",user=wk)
+		db.delete(sess)
 		wk.passwd=self.request.get('passwd')
 		wk.put()
 		db.delete(rst)

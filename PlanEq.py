@@ -148,7 +148,11 @@ class PEAdd(webapp.RequestHandler):
 			eq.name=self.request.get('eqname')
 			eq.put()
 			pe.equipment=eq		
-		pe.quantity=int(self.request.get('quant'))
+		try:
+			pe.quantity=int(self.request.get('quant'))
+		except (ValueError):
+			pe.quantity=0
+		
 		pe.comment=self.request.get('comment')
 		
 		

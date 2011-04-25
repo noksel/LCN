@@ -27,12 +27,19 @@ class Login(webapp.RequestHandler):
 		self.response.out.write("""
 		<html>
 		<style>
+			body
+			{
+			background-color:#1f66c0;
+			
+			}
+			
 			#frm
 			{
 				position: absolute;
 				left:35%;
 				top: 30%;
-				background-color: #45A6F2;
+				color: white;
+				background-color: #0c3569;
 				border-width:thin;
 				
 				padding-top:20px;
