@@ -67,9 +67,13 @@ class OrderPage(webapp.RequestHandler):
 		self.response.out.write("</div>")
 		
 	def getToSubm(self,caption,sb,subm):
+		rnd_id=random.randrange(20000000)
 		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter AND submit=:submit",submiter=sb,submit=subm)
 		
 		self.response.out.write(u"""%s(%s)"""%(caption,ends_sb.count()))
+		self.response.out.write(u"""<input type="button" id="btn%s" onclick="op_cl('%s')" value="Развернуть">"""%(rnd_id,rnd_id))
+		
+		self.response.out.write(u"""<div id="%s" style="display:none;">"""%(rnd_id))		
 		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 		
 		for _end_sb in ends_sb:
@@ -90,7 +94,8 @@ class OrderPage(webapp.RequestHandler):
 					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
 			
 				self.response.out.write("</table></td></tr>")
-		self.response.out.write("</table>")		
+		self.response.out.write("</table>")
+		self.response.out.write("</div>")		
 ################### #############	
 	def doSmf(self,cUsr):
 		
