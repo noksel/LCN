@@ -1,5 +1,6 @@
 			body {
 				margin: 0px 0px 0px 0px;
+				background-color:#f5f5f5;
 			}	
 					
 			a.l{color:white}
@@ -68,5 +69,11 @@
 			.ntD
 			{
 							
+			}
+			.errNm
+			{
+				font-weight:bold;
+				font-size:24pt;
+				padding:20px;
 			}
 

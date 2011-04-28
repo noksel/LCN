@@ -7,6 +7,7 @@ import hashlib
 import datetime
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+import err
 
 
 class Worker(db.Model):
@@ -241,23 +242,26 @@ class SetPasswd(webapp.RequestHandler):
 		key=self.request.get('rkey')
 		rsts = db.GqlQuery("SELECT * FROM ResetPasswd WHERE rkey=:rkey",rkey=key)
 		
-		
-		rst=rsts[0]		
-		wk=rst.worker
-		sess = db.GqlQuery("SELECT * FROM Session WHERE user=:user",user=wk)
-		db.delete(sess)
-		wk.passwd=self.request.get('passwd')
-		wk.put()
-		db.delete(rst)
-		self.redirect('/')
+		if(rsts.count()>0):
+			rst=rsts[0]		
+			wk=rst.worker
+			sess = db.GqlQuery("SELECT * FROM Session WHERE user=:user",user=wk)
+			db.delete(sess)
+			wk.passwd=self.request.get('passwd')
+			wk.put()
+			db.delete(rst)
+			self.redirect('/')
+		else:
+			err.errPgUsr(self,u"Не верный код для сброса пароля")
 		
 class SetPasswdPg(webapp.RequestHandler):
 	def get(self):
 	#проверка на наличие куки не нужна. меняет безымянный
 		key=self.request.get('rkey')
 		rsts = db.GqlQuery("SELECT * FROM ResetPasswd WHERE rkey=:rkey",rkey=key)
-		rst=rsts[0]
-		self.response.out.write(u"""<html><head>%s <script type="text/javascript">
+		if(rsts.count()>0):
+			rst=rsts[0]
+			self.response.out.write(u"""<html><head>%s <script type="text/javascript">
 		function setpass()
 		{
 			var ps = document.getElementById('pass')
@@ -304,10 +308,12 @@ class SetPasswdPg(webapp.RequestHandler):
 		}
 				
 		</script></head> <body>%s"""%(lcncss.style,key,lcncss.begResetPass("")))	
-		self.response.out.write(u"""<div class="titlePg">Ввод нового пароля:</div> %s<table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
-		self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf" class="notice"><br/></div>		
+			self.response.out.write(u"""<div class="titlePg">Ввод нового пароля:</div> %s<table><tr><br/><td>Введите пароль:</td><td><input id="pass" type="password"></td></tr>"""%rst.worker.surname)
+			self.response.out.write(u"""<tr><td>Подтвердите пароль:</td><td><input id="confpass" type="password" onkeyup="keyps()"></td></tr></table><div id="vconf" class="notice"><br/></div>		
 		 <input type="button" onclick="setpass()" value="Изменить">""")
-		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
+			self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
+		else:
+			err.errPgUsr(self,u"Не верный код для сброса пароля")
 		
 class GenReset(webapp.RequestHandler):
 	def get(self):

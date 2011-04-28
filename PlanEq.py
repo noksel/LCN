@@ -35,16 +35,16 @@ class PlanEqPage(webapp.RequestHandler):
 			delPg=""
 			if (cUsr.key()==peq.respWk.key() ):
 			 crOrd=u"<a href=\"/planeq/to-order?kplan=%s\">(Создать заявку)</a>"%peq.key()
-			 delPg=u"""<a href=\"javascript:(function(){
+			 delPg=u"""<input type="button" onclick=\"javascript:(function(){
 			 															$.post('/planeq/del',{pkey: '%s'});
 			 															 window.location.href='/planeq';
-			 															})()\">X</a>"""%peq.key()			
+			 															})()\" value="X">"""%peq.key()			
 			
 			self.response.out.write(u"<tr><td>%s</td> <td>%s %s</td> <td>%s</td><td>%s</td>" % (delPg,peq.equipment.name,crOrd,peq.quantity,peq.comment))
 
 			self.response.out.write("<td><a href=\"/workers/workerPg?wkey=%s\">%s</a></td></tr>" % (peq.respWk.key(),peq.respWk.surname))							
 		if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
-			self.response.out.write(u'</table><a href="pgplaneqadd">Добавить оборудование в план</a> ')
+			self.response.out.write(u'</table><br/><input type="button" onclick="javascript:location.href=\'/pgplaneqadd\'" value="Добавить оборудование в план"> ')
 		self.response.out.write(u"""%s</body></html>"""%lcncss.Mtempl.end)
 		
 class PgPlanEqAdd(webapp.RequestHandler):

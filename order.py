@@ -36,13 +36,16 @@ class OrderPage(webapp.RequestHandler):
 		else:
 			self.redirect('/')
 		
-	def getMyRough(self,wk,stat):
+	def getMyRough(self,caption,wk,stat):
 		
 		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
+		self.response.out.write(u"""%s(%s)"""%(caption,ords.count()))
+		
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 			
 		for _ord in ords:
 			self.response.out.write(u"<tr>")
-			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),nameCut(_ord.equipment.name),_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
 			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 			self.response.out.write("<td><table>")
 			
@@ -54,15 +57,19 @@ class OrderPage(webapp.RequestHandler):
 				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
 			
 			self.response.out.write("</table></td></tr>")
+		self.response.out.write("</table>")
 		
-	def getToSubm(self,sb,subm):
+	def getToSubm(self,caption,sb,subm):
 		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter AND submit=:submit",submiter=sb,submit=subm)
+		
+		self.response.out.write(u"""%s(%s)"""%(caption,ends_sb.count()))
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 		
 		for _end_sb in ends_sb:
 			_ord=_end_sb.order
-			if (_ord.status==1 or _ord.status==2):
+			if (_ord.status>0):
 				self.response.out.write(u"<tr>")
-				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),_ord.equipment.name,_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
+				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),nameCut(_ord.equipment.name),_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
 				ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
 				self.response.out.write("<td><table>")
 			
@@ -75,7 +82,8 @@ class OrderPage(webapp.RequestHandler):
 						
 					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
 			
-				self.response.out.write("</table></td></tr>")		
+				self.response.out.write("</table></td></tr>")
+		self.response.out.write("</table>")		
 ################### #############	
 	def doSmf(self,cUsr):
 		
@@ -88,16 +96,17 @@ class OrderPage(webapp.RequestHandler):
 			{ $("#tabl").replaceWith('""")
 			
 		self.response.out.write(u"""<div id="tabl"> """)
-		self.response.out.write(u"""<b>Мои заявки</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr><tr><td>Черновики</td></tr>""")
-		self.getMyRough(cUsr,0)
-		self.response.out.write(u"<tr><td>На одобрении:</td></tr>")
-		self.getMyRough(cUsr,1)
+		self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
 		
-		self.response.out.write(u"<tr><td>Одобренные:</td></tr>")
-		self.getMyRough(cUsr,2)		
-		self.response.out.write(u"<tr><td>Исполненные:</td></tr>")
-		self.getMyRough(cUsr,3)	
-		self.response.out.write("</table> </div>');")
+		self.getMyRough(u"""<b>Черновики</b>""",cUsr,0)
+		
+		self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)
+		
+		
+		self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)		
+	
+		self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
+		self.response.out.write("</div>');")
 					
 			
 		self.response.out.write("""	
@@ -106,14 +115,13 @@ class OrderPage(webapp.RequestHandler):
 			{ $("#tabl").replaceWith('	""")
 		
 		self.response.out.write(u"""<div id="tabl"> """)	
-		self.response.out.write(u"""<b>На моём одобрении:</b><br/><table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
+		self.response.out.write(u"<b>На моём одобрении:</b><br/><br/>")		
 		
-		self.response.out.write(u"<tr><td>Одобрить:</td></tr>")
-		self.getToSubm(cUsr, False)
-		self.response.out.write(u"<tr><td>Одобренные мной:</td></tr>")
-		self.getToSubm(cUsr, True)				
+		self.getToSubm(u"<br/>Одобрить:",cUsr, False)
 		
-		self.response.out.write("</table></div>');")	
+		self.getToSubm(u"<br/>Одобренные мной:",cUsr, True)				
+		
+		self.response.out.write("</div>');")	
 				
 		self.response.out.write("""	});		
 		$("#ord").click();
@@ -241,3 +249,11 @@ class DellOrd(webapp.RequestHandler):
 			db.delete(ends)
 			db.delete(_ord)
 		self.redirect('/order')
+		
+def nameCut(name):
+	size_str=50
+	if len(name)>size_str:
+		name=" ".join([name[0:size_str],"..."])
+		
+	return name
+	
