@@ -74,8 +74,9 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	);
 	</script>
 	</head><body>%s <div class="titlePg"> Добавить оборудование в план:</div>
-	<form method="get" action="/planeq/planeqadd"><div id="centre">
-	Оборудование: <SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
+	
+	<table>
+	<tr><td>Оборудование:</td> <td><SELECT style="width: 200px;" name="eqid">"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 	
 	eqs=db.GqlQuery('SELECT * FROM Equipment ORDER BY name')
 	for eq in eqs:
@@ -84,10 +85,10 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	self.response.out.write(u"	<OPTION VALUE=\"none\">----Ввести своё----")
 	self.response.out.write(u'</SELECT>')
 	
-	self.response.out.write(u'<br/><div style="width:110px;float:left;">&nbsp</div><input id="eqname" name="eqname" style="width:200px;" DISABLED>')	
+	self.response.out.write(u'<br/><div style="width:110px;"></div><input id="eqname" name="eqname" style="width:200px;" DISABLED></td></tr>')	
 	
-	self.response.out.write(u'</br>Ответственный:')	
-	self.response.out.write(u'<SELECT name=\"resp\">')
+	self.response.out.write(u'<tr><td>Ответственный:</td>')	
+	self.response.out.write(u'<td><SELECT name=\"resp\">')
 	wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
 	
 	
@@ -97,11 +98,11 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		elif(unicode(cUsr.key()) in verify.getList([u'Ответственные']) and wk.key()==cUsr.key()):
 			self.response.out.write(u"<OPTION value=\"%s\">%s</br>"%(wk.key(),wk.surname))
 			
-	self.response.out.write(u'</SELECT><br/>')
+	self.response.out.write(u'</SELECT></td></tr>')
 	
 	self.response.out.write(u"""
-		Количество:<input name="quant"></br>
-		Коментарий:<input name="comment"></br>
+		<tr><td>Количество:</td><td><input name="quant"></td></tr>
+		<tr><td>Коментарий:</td><td><input name="comment"></td></tr></table>
 		<input value="Добавить" type="button" onclick="javascript:(function(){
 		str='/planeq/add?';
 		
@@ -125,7 +126,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 		""")
 
 	
-	self.response.out.write("""</form>%s</body></html> """%(lcncss.Mtempl.end))
+	self.response.out.write("""%s</body></html> """%(lcncss.Mtempl.end))
 	
 	
 class PEAdd(webapp.RequestHandler):
