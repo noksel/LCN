@@ -6,6 +6,7 @@ import payer
 import tpay
 import lcncss
 import verify
+import random
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -38,9 +39,14 @@ class OrderPage(webapp.RequestHandler):
 		
 	def getMyRough(self,caption,wk,stat):
 		
-		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
-		self.response.out.write(u"""%s(%s)"""%(caption,ords.count()))
+		rnd_id=random.randrange(20000000)
 		
+		ords=db.GqlQuery('SELECT * FROM Order WHERE status=:status AND respWk=:respWk',respWk=wk,status=stat)
+		
+		self.response.out.write(u"""%s(%s)"""%(caption,ords.count()))
+		self.response.out.write(u"""<input type="button" id="btn%s" onclick="op_cl('%s')" value="Развернуть">"""%(rnd_id,rnd_id))
+		
+		self.response.out.write(u"""<div id="%s" style="display:none;">"""%(rnd_id))
 		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
 			
 		for _ord in ords:
@@ -58,6 +64,7 @@ class OrderPage(webapp.RequestHandler):
 			
 			self.response.out.write("</table></td></tr>")
 		self.response.out.write("</table>")
+		self.response.out.write("</div>")
 		
 	def getToSubm(self,caption,sb,subm):
 		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter AND submit=:submit",submiter=sb,submit=subm)
@@ -87,7 +94,7 @@ class OrderPage(webapp.RequestHandler):
 ################### #############	
 	def doSmf(self,cUsr):
 		
-		self.response.out.write("""<html><head>
+		self.response.out.write(u"""<html><head>
 		<script src="/script/jquery-1.5.2.min.js"></script>
 		<script src="/script/jjquery.cookie-modified.js"></script>
 		<script type="text/javascript"> 
@@ -104,7 +111,15 @@ class OrderPage(webapp.RequestHandler):
 			location.href='/order';
 			});						
 		
-		});	
+		});
+		function op_cl(elid)
+		{
+			$('#'+elid).toggle(500);
+			if($('#btn'+elid)[0].value=='Свернуть')
+				$('#btn'+elid)[0].value='Развернуть';
+			else if ($('#btn'+elid)[0].value=='Развернуть')
+				$('#btn'+elid)[0].value='Свернуть';
+		}			
 		</script>
 		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
 			
@@ -123,7 +138,7 @@ class OrderPage(webapp.RequestHandler):
 		
 		if(lst_c['ord']=="myOrd"):
 			self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
-			self.getMyRough(u"""<b>Черновики</b>""",cUsr,0)		
+			self.getMyRough(u"""<b>Черновики:</b>""",cUsr,0)		
 			self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)		
 			self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)	
 			self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
