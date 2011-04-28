@@ -89,42 +89,21 @@ class OrderPage(webapp.RequestHandler):
 		
 		self.response.out.write("""<html><head>
 		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script src="/script/jjquery.cookie-modified.js"></script>
 		<script type="text/javascript"> 
 		$(document).ready(function()
 		{
 			$("#ord").click(function()
-			{ $("#tabl").replaceWith('""")
-			
-		self.response.out.write(u"""<div id="tabl"> """)
-		self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
-		
-		self.getMyRough(u"""<b>Черновики</b>""",cUsr,0)
-		
-		self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)
-		
-		
-		self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)		
-	
-		self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
-		self.response.out.write("</div>');")
-					
-			
-		self.response.out.write("""	
+			{ 
+				$.cookie({'ord':'myOrd'});
+				location.href='/order';
 			});				
 			$("#subm").click(function()
-			{ $("#tabl").replaceWith('	""")
+			{ 
+			$.cookie({'ord':'mySbm'});
+			location.href='/order';
+			});						
 		
-		self.response.out.write(u"""<div id="tabl"> """)	
-		self.response.out.write(u"<b>На моём одобрении:</b><br/><br/>")		
-		
-		self.getToSubm(u"<br/>Одобрить:",cUsr, False)
-		
-		self.getToSubm(u"<br/>Одобренные мной:",cUsr, True)				
-		
-		self.response.out.write("</div>');")	
-				
-		self.response.out.write("""	});		
-		$("#ord").click();
 		});	
 		</script>
 		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
@@ -135,9 +114,28 @@ class OrderPage(webapp.RequestHandler):
 		#db.delete(ends)
 		self.response.out.write(u"""<div class="titlePg">Заявки:</div>""")
 		
-		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><br/><br/><div id="tabl"></div>""")
+		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><br/><br/><div id="tabl">""")
 		
-		self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
+		lst_c=self.request.str_cookies
+		if ("ord" not in lst_c or (lst_c['ord']=="")):
+			self.response.headers.add_header('Set-Cookie',"ord=myOrd; path=/;")
+			lst_c['ord']="myOrd"
+		
+		if(lst_c['ord']=="myOrd"):
+			self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
+			self.getMyRough(u"""<b>Черновики</b>""",cUsr,0)		
+			self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)		
+			self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)	
+			self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
+			
+		else:
+			self.response.out.write(u"<b>На моём одобрении:</b><br/><br/>")		
+			self.getToSubm(u"<br/>Одобрить:",cUsr, False)		
+			self.getToSubm(u"<br/>Одобренные мной:",cUsr, True)		
+		
+			self.response.out.write(u"""</div>""")
+		
+			self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):
