@@ -58,16 +58,15 @@ class PgPlanEqAdd(webapp.RequestHandler):
  
  def doSmf(self,cUsr):
 	self.response.out.write(u"""<html><head>%s
-	<script src="/script/my.js"></script>
+	
 	<script src="/script/jquery-1.5.2.min.js"></script>
+	<script src="/script/my.js"></script>
 	<script type="text/javascript">
 	$(document).ready( function()
 	{
 		$('select[name=eqid]').change(function()
 			{
-				if($('select[name=eqid]')[0].value=='none')
-					{$('#eqname').attr('disabled',false);}
-				else {$('#eqname').attr('disabled',true);}
+				changeEn('select[name=eqid]','#eqname')
 			}
 		)
 	}	

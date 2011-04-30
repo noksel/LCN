@@ -7,6 +7,8 @@ import tpay
 import lcncss
 import verify
 import random
+import vendor
+import payer
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -166,6 +168,7 @@ class OrdAdd(webapp.RequestHandler):
 		else:
 			self.redirect('/')
 	def doSmf(self):	
+		
 		_ord=Order()
 		_ord.equipment=db.get(self.request.get('eqipm'))
 		try:
@@ -177,11 +180,24 @@ class OrdAdd(webapp.RequestHandler):
 			_ord.price=float(self.request.get('price').replace(',','.'))
 		except(ValueError):
 			_ord.price=0.0
-			
-		_ord.vendor=db.get(self.request.get('vendor'))
+		if (self.request.get('vendor')!=''):
+			_ord.vendor=db.get(self.request.get('vendor'))
+		elif(self.request.get('vdname')!=''):
+			vd=vendor.Vendor(name=self.request.get('vdname'))
+			vd.put()
+			_ord.vendor=vd
+		
 		_ord.status=int(self.request.get('status'))
 		_ord.dateVend=self.request.get('date')
-		_ord.payer=db.get(self.request.get('payer'))
+		
+		if (self.request.get('payer')!=''):
+			_ord.payer=db.get(self.request.get('payer'))
+		elif(self.request.get('prname')!=''):
+			pr=payer.Payer(name=self.request.get('prname'))
+			pr.put()
+			_ord.payer=pr
+		
+		
 		_ord.typePayment=db.get(self.request.get('tpay'))	
 		_ord.tz=self.request.get('tz')
 		_ord.respWk=db.get(self.request.get('resp'))

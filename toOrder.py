@@ -32,8 +32,16 @@ class ToOrderPage(webapp.RequestHandler):
 					
 					$('input[name=price]').keyup(calc);
 					$('input[name=quant]').keyup(calc);
-					
-					
+				$('select[name=vendor]').change(function()
+				{
+					changeEn('select[name=vendor]','#newVn')
+				}
+				)	
+				$('select[name=payer]').change(function()
+				{
+					changeEn('select[name=payer]','#newPr')
+				}
+				)						
 				}				
 				);
 		</script>
@@ -45,12 +53,11 @@ class ToOrderPage(webapp.RequestHandler):
 		self.response.out.write(u"<tr><td>Стоимость:</td> <td><input DISABLED name=\"cost\"></td></tr>")
 
 		self.response.out.write(u"<tr><td>Поставщик:</td> <td><SELECT name=\"vendor\">")
-		vds =db.GqlQuery("SELECT * FROM Vendor")
-		
+		vds =db.GqlQuery("SELECT * FROM Vendor")		
 		for vd in vds:
 			self.response.out.write(u"<OPTION value=\"%s\">%s"%(vd.key(),vd.name))
-			
-		self.response.out.write(u"</SELECT></td></tr>")
+		self.response.out.write(u"	<OPTION VALUE=\"none\">----Ввести своё----")	
+		self.response.out.write(u"</SELECT><br/><input id=\"newVn\" DISABLED></td></tr>")
 		self.response.out.write(u"""<tr><td>Статус заявки:</td> <td><SELECT name=\"status\">
 				<OPTION value=\"0\">Черновик
 				<OPTION value=\"1\">На одобрение</SELECT></td></tr>
@@ -62,8 +69,8 @@ class ToOrderPage(webapp.RequestHandler):
 		
 		for pr in prs:
 			self.response.out.write(u"<OPTION value=\"%s\">%s"%(pr.key(),pr.name))
-			
-		self.response.out.write(u"</SELECT></td></tr>")	
+		self.response.out.write(u"	<OPTION VALUE=\"none\">----Ввести своё----")
+		self.response.out.write(u"</SELECT><br/><input id=\"newPr\" DISABLED></td></tr>")	
 				
 				
 		self.response.out.write(u"""<tr><td>Тип оплаты:</td><td><SELECT name="tpaymnt">""")
@@ -106,7 +113,33 @@ class ToOrderPage(webapp.RequestHandler):
 		else
 		{
 		
-		window.location.href='/order/add?eqipm='+equipment+'&quant='+document.getElementsByName('quant')[0].value+'&price='+document.getElementsByName('price')[0].value.replace(',','.')+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters'); 
-		 $.post('/planeq/del',{pkey: '%s'});
+		var str='/order/add?eqipm='+equipment+'&quant='+document.getElementsByName('quant')[0].value+'&price='+document.getElementsByName('price')[0].value.replace(',','.')+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters'); 
+	
+
+		
+		if($('select[name=vendor]')[0].value=='none')
+		{
+				str=str+'&vdname='+$('#newVn')[0].value;
+		}
+		else
+		{			
+			str=str+'&vendor='+$('select[name=vendor]')[0].value;	
+		}
+		
+		
+		
+		if($('select[name=payer]')[0].value=='none')
+		{
+				str=str+'&prname='+$('#newPr')[0].value;
+		}
+		else
+		{			
+			str=str+'&payer='+$('select[name=payer]')[0].value;
+				
+		}
+		
+		
+		 //$.post('/planeq/del',{pkey: '%s'});
+		 window.location.href=str;
 		}		
 		})()">%s</body></html>"""%(pl.respWk.key(),pl.key(), lcncss.Mtempl.end))
