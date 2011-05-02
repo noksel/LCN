@@ -40,12 +40,14 @@ class Login(webapp.RequestHandler):
 				top: 30%;
 				color: white;
 				background-color: #0c3569;
-				border-width:thin;
 				
-				padding-top:20px;
-				padding-bottom:10px;
-				padding-left:20px;
-				padding-right:20px;
+				
+				//padding:20px 10px 20px 20px;
+			}
+			form
+			{
+			padding:20px 10px 20px 20px;
+			color: white;
 			}
 			#table
 			{
@@ -62,7 +64,9 @@ class Login(webapp.RequestHandler):
 		</style>
 			<body>
 			<div id="frm">
-				<form method="post" action="/sign">
+			<table border="0" cellspacing="0" cellpadding="0">
+			<tr><td><img src="/css/l_t.jpg"/></td><td><img src="/css/t.jpg"/></td><td><img src="/css/r_t.jpg"/></td></tr>
+				<tr><td><img src="/css/l.jpg"/></td><td><form method="post" action="/sign">
 					<div id="table">
 						<div class="row"><div class="cell">E-mail:</div> <div class="cell"><input name="email"></div></div>
 						<div class="row"><div class="cell">Пароль:</div> <div class="cell"><input name="passwd" type="password"></div></div>
@@ -72,7 +76,9 @@ class Login(webapp.RequestHandler):
 					<br/>
 					<input style="float:right;" type="submit" value="Войти">
 					
-				</form>
+				</form></td><td><img src="/css/r.jpg"/></td></tr>
+				<tr><td><img src="/css/l_b.jpg"/></td><td><img src="/css/b.jpg"/></td><td><img src="/css/r_b.jpg"/></td></tr>
+				</table>
 			</div>
 			</body>
 		</html>		
