@@ -138,7 +138,7 @@ class UpdtWorker(webapp.RequestHandler):
 		wk.phone=self.request.get('phone')
 		wk.put()
 		
-		gr_wk=db.GqlQuery('SELECT * FROM UsrGroup WHERE worker=:worker',worker=wk)
+		gr_wk=db.GqlQuery('SELECT * FROM UsrGroup WHERE user=:worker',worker=wk)
 		db.delete(gr_wk)
 		lst_k_grps=self.request.get('groups').split(':')
 		for kgrp in lst_k_grps:
