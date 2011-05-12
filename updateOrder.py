@@ -154,7 +154,27 @@ class UpdateOrderPg(webapp.RequestHandler):
 			if(_ord.status==0 or _ord.status==1):
 		 		self.response.out.write(u"<div class=\"notice\">Уважаемые коллеги! если заявка находится на одобрении и вы решили изменить какие-то данные то все \"Подтверждения\" на закупку будут сброшены. </div>")
 		 		self.response.out.write(u"<input id=\"enbtn\"type=\"button\" name=\"enable\" value=\"Разблокировать для изменения\">")
-		 		self.response.out.write(u"""<div id="submCh"><input type="button" value="Принять изменения" onclick="javascript:window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')">"""%(_ord.key(),_ord.respWk.key()))
+		 		self.response.out.write(u"""<div id="submCh"><input type="button" value="Принять изменения" onclick="javascript:
+		 		(function(){
+		 		
+		 		if($('select[name=status]')[0].value==1 && $('input[name=price]')[0].value=='')
+		 alert('Введите цену');
+		
+		else if($('select[name=status]')[0].value==1 && $('input[name=dateVend]')[0].value=='')
+		 alert('Введите дату поставки');
+		
+		else if($('select[name=status]')[0].value==1 && $('input[name=tz]')[0].value=='')
+		 alert('Введите ccылку на ТЗ');
+		
+		else if(!checkCount('submiters'))
+			alert('Отметте кто утверждает заявку');
+			
+		
+		else
+		{
+		 		window.location.href='/order/update?ord=%s'+'&quant='+document.getElementById('quant').value+'&price='+document.getElementsByName('price')[0].value+'&vendor='+document.getElementsByName('vendor')[0].value+'&status='+document.getElementsByName('status')[0].value+'&date='+document.getElementsByName('dateVend')[0].value+'&payer='+document.getElementsByName('payer')[0].value+'&tpay='+document.getElementsByName('tpaymnt')[0].value+'&tz='+document.getElementsByName('tz')[0].value+'&resp=%s'+'&ends='+getList('submiters')
+		 }		
+		 		})()">"""%(_ord.key(),_ord.respWk.key()))
 		 		self.response.out.write(u"""<input type="button" value="Удалить заявку" onclick="javascript:window.location.href='/order/dell?ord=%s';" > </div>"""%(_ord.key()))
 		 	elif(_ord.status==2):
 		 		self.response.out.write(u"""<input type="button" value="Исполнена" onclick="javascript:window.location.href='/order/tohist?ord=%s';" > """%(_ord.key()))

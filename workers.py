@@ -125,25 +125,29 @@ class UpdtWorker(webapp.RequestHandler):
 	def post(self):
 		getUsr=verify.verifyUsr(self)
  		if (getUsr!=None):
-			self.doSmf()			
+			self.doSmf(getUsr)			
 		else:
 			self.redirect('/')	
 	
-	def doSmf(self):
+	def doSmf(self,cUsr):
 		wk=db.get(self.request.get('wkey'))
-		wk.surname=self.request.get('surname')
-		wk.patronymic=self.request.get('patronymic')
-		wk.name=self.request.get('name')
-		wk.email=self.request.get('email')
-		wk.phone=self.request.get('phone')
-		wk.put()
 		
-		gr_wk=db.GqlQuery('SELECT * FROM UsrGroup WHERE user=:worker',worker=wk)
-		db.delete(gr_wk)
-		lst_k_grps=self.request.get('groups').split(':')
-		for kgrp in lst_k_grps:
-			ugrp=UsrGroup(user=wk,group=db.get(kgrp))
-			ugrp.put()
+		if(cUsr.key()==wk.key() or (unicode(cUsr.key()) in verify.getList([u'Администраторы']))):
+			wk.surname=self.request.get('surname')
+			wk.patronymic=self.request.get('patronymic')
+			wk.name=self.request.get('name')
+			wk.email=self.request.get('email')
+			wk.phone=self.request.get('phone')
+			wk.put()
+			if(unicode(cUsr.key()) in verify.getList([u'Администраторы',u'Работники'])):
+				gr_wk=db.GqlQuery('SELECT * FROM UsrGroup WHERE user=:worker',worker=wk)
+				db.delete(gr_wk)
+				lst_k_grps=self.request.get('groups').split(':')
+				if(len(lst_k_grps)==1 and lst_k_grps[0]==u""):
+					lst_k_grps=[]
+				for kgrp in lst_k_grps:					
+					ugrp=UsrGroup(user=wk,group=db.get(kgrp))
+					ugrp.put()
 			
 		self.redirect('/workers')
 
@@ -331,5 +335,5 @@ class GenReset(webapp.RequestHandler):
 		rs.put()
 		
 def getLnkToProfile(wk):
-	return "<a href=\"http://localhost:8080/workers/workerPg?wkey=%s\">%s</a>"%(wk.key(),wk.surname)
+	return "<a href=\"/workers/workerPg?wkey=%s\">%s</a>"%(wk.key(),wk.surname)
 	

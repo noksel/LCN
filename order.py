@@ -230,7 +230,13 @@ class OrdUpdate(webapp.RequestHandler):
 		if(cUsr.key()==_ord.respWk.key()):
 		
 			_ord.quantity=int(self.request.get('quant'))
-			_ord.price=float(self.request.get('price').replace(',','.'))
+			
+			try:
+				_ord.price=float(self.request.get('price').replace(',','.'))
+			except(ValueError):
+				_ord.price=0.0
+			
+			
 			_ord.vendor=db.get(self.request.get('vendor'))
 			_ord.status=int(self.request.get('status'))
 			_ord.dateVend=self.request.get('date')

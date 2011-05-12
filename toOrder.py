@@ -139,7 +139,7 @@ class ToOrderPage(webapp.RequestHandler):
 		}
 		
 		
-		 //$.post('/planeq/del',{pkey: '%s'});
+		 $.post('/planeq/del',{pkey: '%s'});
 		 window.location.href=str;
 		}		
 		})()">%s</body></html>"""%(pl.respWk.key(),pl.key(), lcncss.Mtempl.end))
