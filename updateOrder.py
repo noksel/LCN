@@ -1,6 +1,7 @@
 # -*-  coding: UTF-8 -*-
 import lcncss
 import verify
+import workers
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
@@ -13,7 +14,10 @@ class UpdateOrderPg(webapp.RequestHandler):
 			end=db.GqlQuery('SELECT * FROM Endorsment WHERE order=:order and submiter=:sbm',order=_ord,sbm=cUsr)
 			
 			if (cUsr.key()==_ord.respWk.key() or (end.count()>0 and verify.verifyRightEndors(cUsr,end[0]))):
-				self.doSmf(cUsr)			
+				self.doSmf(cUsr)
+			elif (unicode(cUsr.key()) in verify.getList([u'Работники',u'Внешние службы'])):
+				self.showAll(cUsr)	
+						
 		else:
 		 self.redirect('/')
 			
@@ -182,5 +186,66 @@ class UpdateOrderPg(webapp.RequestHandler):
 		 
 		if(e):
 			self.response.out.write(u"<input type=\"button\" name=\"endsmnt\" value=\"Одобрить\" onclick=\"javascript:window.location.href='/order/submit?endsmnt=%s'\">"%(e.key()))
+			
+		self.response.out.write(u"""%s</body></html>"""%(lcncss.Mtempl.end))
+##################################################################################	
+	def showAll(self,cUsr):
+		_ord=db.get(self.request.get('kord'))
+		
+		self.response.out.write(u"""<html><head>%s
+		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script src="/script/my.js"></script>
+			</head><body>%s<div class="titlePg">Заявка</div><table>"""%(lcncss.style,lcncss.beg(cUsr.surname)))
+		
+		self.response.out.write(u"<tr><td>Оборудование: </td><td>%s</td></tr>"%_ord.equipment.name)
+		self.response.out.write(u"<tr><td>Количество:</td> <td>%s</td></tr>"%_ord.quantity)
+		
+		self.response.out.write(u"<tr><td>Цена(руб.):</td> <td>%s</td></tr>"%_ord.price)
+		self.response.out.write(u"<tr><td>Стоимость:</td> <td>%s</td></tr>"%(_ord.quantity*_ord.price))
+
+		self.response.out.write(u"<tr><td>Поставщик:</td> <td>%s</td></tr>"%_ord.vendor.name)
+		self.response.out.write(u"""<tr><td>Статус заявки:</td><td>""")
+
+		if(_ord.status==0):
+			self.response.out.write(u"""Черновик</td></tr>""")
+		elif (_ord.status==1):
+			self.response.out.write(u"""На одобрении</td></tr>""")
+		elif (_ord.status==2):
+			self.response.out.write(u"""Одобрена</td></tr>""")		
+		elif (_ord.status==3):
+			self.response.out.write(u"""Исполнена</td></tr>""")			
+		self.response.out.write(u"""<tr><td>Дата поставки:</td> <td>%s</td></tr>"""%_ord.dateVend)
+		
+		self.response.out.write(u"<tr><td>Плательщик:</td> <td>%s</td></tr>"%_ord.payer.name)
+	
+		
+		self.response.out.write(u"""<tr><td>Тип оплаты:</td><td>%s</td></tr>	"""%_ord.typePayment.name)
+		self.response.out.write(u"""
+				<tr><td>Тех.здание:				
+				</td> <td><a href="%s">%s</a></td></tr>"""%(_ord.tz,_ord.tz)) #опциональное
+		
+	
+				
+		self.response.out.write(u"<tr><td>Ответственные:</td> <td>%s</td></tr></table>"% workers.getLnkToProfile(_ord.respWk))
+		
+		self.response.out.write(u'Утверждают:</br>')
+	
+	
+		wks=db.GqlQuery('SELECT * FROM Worker ORDER BY surname')
+		ends=db.GqlQuery('SELECT * FROM Endorsment WHERE order=:order',order=_ord)
+	
+		
+		e=None
+		
+		tmp=False
+		allEnd=True
+		sbm=""
+		for end in ends:
+				if (end.submit==True):
+				 	self.response.out.write(u"<input class=\"dis\" DISABLED CHECKED type=\"checkbox\" name=\"submiters\" >%s</br>"%( workers.getLnkToProfile(end.submiter)))		
+				else:
+					self.response.out.write(u"<input class=\"dis\" DISABLED CHECKED type=\"checkbox\" name=\"submiters\" >%s</br>"%( workers.getLnkToProfile(end.submiter)))		
+				
+		
 			
 		self.response.out.write(u"""%s</body></html>"""%(lcncss.Mtempl.end))
