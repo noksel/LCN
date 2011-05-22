@@ -84,7 +84,7 @@ class PgPlanEqAdd(webapp.RequestHandler):
 	self.response.out.write(u"	<OPTION VALUE=\"none\">----Ввести своё----")
 	self.response.out.write(u'</SELECT>')
 	
-	self.response.out.write(u'<br/><div style="width:110px;"></div><input id="eqname" name="eqname" style="width:200px;" DISABLED></td></tr>')	
+	self.response.out.write(u'<br/><div style="width:110px;"></div><textarea id="eqname" name="eqname" style="width:200px;height:100;" DISABLED></textarea></td></tr>')	
 	
 	self.response.out.write(u'<tr><td>Ответственный:</td>')	
 	self.response.out.write(u'<td><SELECT name=\"resp\">')

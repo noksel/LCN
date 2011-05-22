@@ -117,7 +117,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		
 	
 				
-		self.response.out.write(u"<tr><td>Ответственные:</td> <td>%s</td></tr></table>"%_ord.respWk.surname)
+		self.response.out.write(u"<tr><td>Ответственные:</td> <td>%s</td></tr></table>"%workers.getLnkToProfile(_ord.respWk))
 		
 		self.response.out.write(u'Утверждают:</br>')
 	
@@ -146,11 +146,11 @@ class UpdateOrderPg(webapp.RequestHandler):
 				if(_wk.key()!=_ord.respWk.key()):
 					
 					if(unicode(_wk.key()) in verify.getList([u'Работники'])):
-						self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s %s</br>"%(_wk.key(),_wk.surname,sbm))		
+						self.response.out.write(u"<input class=\"dis\" CHECKED type=\"checkbox\" name=\"submiters\" value=\"%s\">%s %s</br>"%(_wk.key(),workers.getLnkToProfile(_wk),sbm))		
 			else:
 				if(_wk.key()!=_ord.respWk.key()):					
 					if(unicode(_wk.key()) in verify.getList([u'Работники'])):
-						self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),_wk.surname))
+						self.response.out.write(u"<input class=\"dis\" type=\"checkbox\" name=\"submiters\" value=\"%s\">%s</br>"%(_wk.key(),workers.getLnkToProfile(_wk)))
 		
 		
 		
@@ -235,11 +235,7 @@ class UpdateOrderPg(webapp.RequestHandler):
 		ends=db.GqlQuery('SELECT * FROM Endorsment WHERE order=:order',order=_ord)
 	
 		
-		e=None
 		
-		tmp=False
-		allEnd=True
-		sbm=""
 		for end in ends:
 				if (end.submit==True):
 				 	self.response.out.write(u"<input class=\"dis\" DISABLED CHECKED type=\"checkbox\" name=\"submiters\" >%s</br>"%( workers.getLnkToProfile(end.submiter)))		

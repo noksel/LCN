@@ -68,8 +68,8 @@ class Login(webapp.RequestHandler):
 			<tr><td><img src="/css/l_t.jpg"/></td><td><img src="/css/t.jpg"/></td><td><img src="/css/r_t.jpg"/></td></tr>
 				<tr><td><img src="/css/l.jpg"/></td><td><form method="post" action="/sign">
 					<div id="table">
-						<div class="row"><div class="cell">E-mail:</div> <div class="cell"><input name="email"></div></div>
-						<div class="row"><div class="cell">Пароль:</div> <div class="cell"><input name="passwd" type="password"></div></div>
+						<div class="row"><div class="cell">E-mail:</div> <div class="cell"><input name="email" style="width:155"></div></div>
+						<div class="row"><div class="cell">Пароль:</div> <div class="cell"><input name="passwd" type="password" style="width:155"></div></div>
 					</div>
 					<input type="checkbox" name="longsess" value="True"> Оставаться в системе<br/>
 

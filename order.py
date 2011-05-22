@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*-  coding: UTF-8 -*-
 import equipment
 import vendor
 import workers
@@ -35,11 +35,16 @@ class OrderPage(webapp.RequestHandler):
 	def get(self):
 		getUsr=verify.verifyUsr(self)
  		if (getUsr!=None):
-			self.doSmf(getUsr)			
+ 			if(unicode(getUsr.key()) in verify.getList([u'Работники',u'Администраторы'])):
+				self.doSmf(getUsr)
+			elif(unicode(getUsr.key()) in verify.getList([u'Внешние службы'])):
+				self.forServ(getUsr)
+			else:
+				self.redirect('/')
 		else:
 			self.redirect('/')
 		
-	def getMyRough(self,caption,wk,stat):
+	def getMyRough(self,caption,wk,stat): # рисует таблицу для заданного пользователя и статуса заявки
 		
 		rnd_id=random.randrange(20000000)
 		
@@ -97,10 +102,139 @@ class OrderPage(webapp.RequestHandler):
 			
 				self.response.out.write("</table></td></tr>")
 		self.response.out.write("</table>")
-		self.response.out.write("</div>")		
+		self.response.out.write("</div>")	
+		
+	def getRough(self,caption,stat): # рисует таблицу заявок для заданного статуса
+		
+		rnd_id=random.randrange(20000000)
+		
+		ords=db.GqlQuery(u'SELECT * FROM Order WHERE status=:status ',status=stat)
+		
+		self.response.out.write(u"""%s(%s)"""%(caption,ords.count()))
+		self.response.out.write(u"""<input type="button" id="btn%s" onclick="op_cl('%s')" value="Развернуть">"""%(rnd_id,rnd_id))
+		
+		self.response.out.write(u"""<div id="%s" style="display:none;">"""%(rnd_id))
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
+			
+		for _ord in ords:
+			self.response.out.write(u"<tr>")
+			self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),nameCut(_ord.equipment.name),_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
+			ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+			self.response.out.write("<td><table>")
+			
+			for e in ends:
+				mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" DISABLED >"%(e.key())
+				if(e.submit==True):
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
+					
+				self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
+			
+			self.response.out.write("</table></td></tr>")
+		self.response.out.write("</table>")
+		self.response.out.write("</div>")
+		
+	def getToSubm(self,caption,sb,subm):
+		rnd_id=random.randrange(20000000)
+		ends_sb=db.GqlQuery("SELECT * FROM Endorsment WHERE submiter=:submiter AND submit=:submit",submiter=sb,submit=subm)
+		
+		self.response.out.write(u"""%s(%s)"""%(caption,ends_sb.count()))
+		self.response.out.write(u"""<input type="button" id="btn%s" onclick="op_cl('%s')" value="Развернуть">"""%(rnd_id,rnd_id))
+		
+		self.response.out.write(u"""<div id="%s" style="display:none;">"""%(rnd_id))		
+		self.response.out.write(u"""<table border="1"><tr><th>Наименование</th><th>Количество</th><th>Цена(руб.)</th><th>Стоимость</th><th>Поставщик</th><th>Дата поставки</th><th>Ответственные</th><th>Одобрено</th></tr>""")
+		
+		for _end_sb in ends_sb:
+			_ord=_end_sb.order
+			if (_ord.status>0):
+				self.response.out.write(u"<tr>")
+				self.response.out.write("<td><a href=\"/order/update-pg?kord=%s\">%s</a></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"%(_ord.key(),nameCut(_ord.equipment.name),_ord.quantity,_ord.price,_ord.quantity*_ord.price,_ord.vendor.name,_ord.dateVend,workers.getLnkToProfile(_ord.respWk)))
+				ends=db.GqlQuery("SELECT * FROM Endorsment WHERE order=:order",order=_ord)
+				self.response.out.write("<td><table>")
+			
+				for e in ends:
+					mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\" onclick=\"javascript:window.location.href=\\\'/order/submit?endsmnt=%s\\\'\">"%(str(e.key()),str(e.key()))
+					if(e.submit==True):
+						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"CHECKED DISABLED>"%(e.key())
+					elif(sb.key()!=e.submiter.key()):
+						mstr="<input type=\"checkbox\" name=\"endsmnt\" value=\"%s\"DISABLED>"%(e.key())
+						
+					self.response.out.write("<tr><td>%s</td><td>%s</td></tr>"%(workers.getLnkToProfile(e.submiter),mstr))
+			
+				self.response.out.write("</table></td></tr>")
+		self.response.out.write("</table>")
+		self.response.out.write("</div>")				
 ################### #############	
 	def doSmf(self,cUsr):
 		
+		self.response.out.write(u"""<html><head>
+		<script src="/script/jquery-1.5.2.min.js"></script>
+		<script src="/script/jjquery.cookie-modified.js"></script>
+		<script type="text/javascript"> 
+		$(document).ready(function()
+		{
+			$("#ord").click(function()
+			{ 
+				$.cookie({'ord':'myOrd'});
+				location.href='/order';
+			});				
+			$("#subm").click(function()
+			{ 
+			$.cookie({'ord':'mySbm'});
+			location.href='/order';
+			});	
+			
+			$("#allOrd").click(function()
+			{ 
+			$.cookie({'ord':'allOrd'});
+			location.href='/order';
+			});					
+		
+		});
+		function op_cl(elid)
+		{
+			$('#'+elid).toggle(500);
+			if($('#btn'+elid)[0].value=='Свернуть')
+				$('#btn'+elid)[0].value='Развернуть';
+			else if ($('#btn'+elid)[0].value=='Развернуть')
+				$('#btn'+elid)[0].value='Свернуть';
+		}			
+		</script>
+		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
+			
+		#ords=db.GqlQuery('SELECT * FROM Order')
+		#ends=db.GqlQuery("SELECT * FROM Endorsment")
+		#db.delete(ords)
+		#db.delete(ends)
+		self.response.out.write(u"""<div class="titlePg">Заявки:</div>""")
+		
+		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><input id="allOrd" type="button" value="Все заявки"><br/><br/><div id="tabl">""")
+		
+		lst_c=self.request.str_cookies
+		if ("ord" not in lst_c or (lst_c['ord']=="")):
+			self.response.headers.add_header('Set-Cookie',"ord=myOrd; path=/;")
+			lst_c['ord']="myOrd"
+		
+		if(lst_c['ord']=="myOrd"):
+			self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
+			self.getMyRough(u"""<b>Черновики:</b>""",cUsr,0)		
+			self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)		
+			self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)	
+			self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
+			
+		elif(lst_c['ord']=="mySbm"):
+			self.response.out.write(u"<b>На моём одобрении:</b><br/><br/>")		
+			self.getToSubm(u"<br/>Одобрить:",cUsr, False)		
+			self.getToSubm(u"<br/>Одобренные мной:",cUsr, True)		
+		else:
+			self.response.out.write(u"""<div class="titlePg">Заявки:</div>""")
+			self.getRough(u"<br/><b>Одобренные:</b>",2)		
+			self.getRough(u"<br/><b>Исполненные:</b>",3)
+						
+		self.response.out.write(u"""</div>""")		
+		self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
+
+	
+	def forServ(self,cUsr):
 		self.response.out.write(u"""<html><head>
 		<script src="/script/jquery-1.5.2.min.js"></script>
 		<script src="/script/jjquery.cookie-modified.js"></script>
@@ -128,36 +262,12 @@ class OrderPage(webapp.RequestHandler):
 				$('#btn'+elid)[0].value='Свернуть';
 		}			
 		</script>
-		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))
-			
-		#ords=db.GqlQuery('SELECT * FROM Order')
-		#ends=db.GqlQuery("SELECT * FROM Endorsment")
-		#db.delete(ords)
-		#db.delete(ends)
+		%s</head><body>%s"""%(lcncss.style,lcncss.beg(cUsr.surname)))	
 		self.response.out.write(u"""<div class="titlePg">Заявки:</div>""")
+		self.getRough(u"<br/><b>Одобренные:</b>",2)	
 		
-		self.response.out.write(u""" <input id="ord" type="button" value="Мои заявки"> <input id="subm" type="button" value="На моём одобрении"><br/><br/><div id="tabl">""")
-		
-		lst_c=self.request.str_cookies
-		if ("ord" not in lst_c or (lst_c['ord']=="")):
-			self.response.headers.add_header('Set-Cookie',"ord=myOrd; path=/;")
-			lst_c['ord']="myOrd"
-		
-		if(lst_c['ord']=="myOrd"):
-			self.response.out.write(u"""<b>Мои заявки</b><br/><br/>""")		
-			self.getMyRough(u"""<b>Черновики:</b>""",cUsr,0)		
-			self.getMyRough(u"<br/><b>На одобрении:</b>",cUsr,1)		
-			self.getMyRough(u"<br/><b>Одобренные:</b>",cUsr,2)	
-			self.getMyRough(u"<br/><b>Исполненные:</b>",cUsr,3)	
-			
-		else:
-			self.response.out.write(u"<b>На моём одобрении:</b><br/><br/>")		
-			self.getToSubm(u"<br/>Одобрить:",cUsr, False)		
-			self.getToSubm(u"<br/>Одобренные мной:",cUsr, True)		
-		
-			self.response.out.write(u"""</div>""")
-		
-			self.response.out.write("%s</body></html>"%lcncss.Mtempl.end)
+		self.getRough(u"<br/><b>Исполненные:</b>",3)
+		self.response.out.write(u"%s</body></html>"%lcncss.Mtempl.end)
 	
 class OrdAdd(webapp.RequestHandler):
 	def get(self):
